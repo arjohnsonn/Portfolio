@@ -5,11 +5,55 @@
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
 }
+
+html {
+  overflow: hidden;
+}
 body {
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: #343f4f;
+  margin: 0;
+  font-size: 26px;
+  color: #ffffff;
+  height: 100vh;
+  perspective: 1px;
+  transform-style: preserve-3d;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.parallax-wrapper {
+  width: 100vw;
+  height: 100vh;
+  padding-top: 20vh;
+  box-sizing: border-box;
+  transform-style: preserve-3d;
+}
+.parallax-wrapper::before {
+  content: "";
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  background-image: url("https://cdn.discordapp.com/attachments/1056930335855739000/1191921857075613777/image.png?ex=65d5573b&is=65c2e23b&hm=3b7531111f1cc080485fa1dac1965dc0da203df3610771963b0dbc640a1b3766&");
+  position: absolute;
+  z-index: -1;
+  transform: translateZ(-1px) scale(2);
+}
+.regular-wrapper {
+  width: 100vw;
+  height: 100vh;
+  padding-top: 20vh;
+  background-image: url("/trianglify2.png");
+  z-index: 2;
+  position: relative;
+}
+.content {
+  margin: 0 auto;
+  padding: 50px;
+  font-weight: bolder;
+  font-size: x-large;
+  width: 80%;
+  background: rgba(60, 60, 60, 0.5);
+
+  backdrop-filter: blur(10px);
 }
 
 .wrapper {
