@@ -2,7 +2,7 @@
 <html lang="en" data-bs-theme="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portfolio</title>
     <link rel="stylesheet" href="style.css" />
     <link
@@ -13,11 +13,9 @@
     />
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary" style="z-index: 99">
       <div class="container-fluid">
-        <a class="navbar-brand" style="padding: 1vh" href="#"
-          >Aiden's Portfolio
-        </a>
+        <a class="navbar-brand" style="padding: 1vh" href="#">Aiden Johnson</a>
         <button
           class="navbar-toggler"
           type="button"
@@ -44,50 +42,30 @@
         </div>
       </div>
     </nav>
-    <h1 class="text-center" style="padding-top: 35vh; font-size: 10vh">
-      Aiden's Portfolio
-    </h1>
-
-    <div class="wrapper text-center" style="padding-bottom: 140vh">
-      <ul class="dynamic-txts" style="text-align: center">
-        <li><span>Developer</span></li>
-        <li><span>Programmer</span></li>
-        <li><span>Roblox Dev</span></li>
-        <li><span>Game Owner</span></li>
-      </ul>
-    </div>
-
-    <div class="parallax-wrapper" style="padding-top: 330px">
-      <div
-        class="content"
-        style="text-align: center; transform: translate(0px, -25vh)"
-      >
-        <b style="font-size: 5.6vh">
-          Owner, Lead Developer, & Social Media Manager<br
-        /></b>
-        <h3 style="font-weight: lighter">
-          for one of the most immerse & realistic Roblox RP games
-        </h3>
-      </div>
-      <div
-        style="
-          text-align: center;
-          transform: translate(0px, -15vh);
-          margin: 0 auto;
-          padding: 50px;
-          font-weight: bolder;
-          font-size: 10vh;
-          width: 50%;
-          background: rgba(60, 60, 60, 0.5);
-
-          backdrop-filter: blur(10px);
-        "
-      >
-        <b id="visits"> 300,000 Visits </b>
+    <div style="text-align: center; margin-top: 35vh">
+      <canvas id="canvas"></canvas>
+      <div class="">
+        <p style="font-size: 3em; font-weight: light">
+          Hello, I'm
+          <span id="test" style="font-weight: bolder; color: rgb(249, 104, 104)"
+            >Rapid</span
+          >
+        </p>
       </div>
     </div>
 
-    <!--SCRIPTS-->
+    <div style="text-align: center; margin: -3vh">
+      <div class="typewriter">
+        <p
+          class="typewriter-text"
+          id="typewriter-text"
+          style="font-weight: lighter"
+        >
+          I'm a student, programmer, and game developer
+        </p>
+      </div>
+    </div>
+
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"

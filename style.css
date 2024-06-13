@@ -9,6 +9,7 @@
 html {
   overflow: hidden;
 }
+
 body {
   margin: 0;
   font-size: 26px;
@@ -19,87 +20,46 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
 }
-.parallax-wrapper {
-  width: 100vw;
-  height: 100vh;
-  padding-top: 20vh;
-  box-sizing: border-box;
-  transform-style: preserve-3d;
-}
-.parallax-wrapper::before {
-  content: "";
-  width: 100vw;
-  height: 100vh;
+
+canvas {
+  background: #232323;
+  position: absolute;
   top: 0;
   left: 0;
-  background-image: url("https://cdn.discordapp.com/attachments/1056930335855739000/1191921857075613777/image.png?ex=65d5573b&is=65c2e23b&hm=3b7531111f1cc080485fa1dac1965dc0da203df3610771963b0dbc640a1b3766&");
-  position: absolute;
+  pointer-events: auto;
   z-index: -1;
-  transform: translateZ(-1px) scale(2);
-}
-.regular-wrapper {
-  width: 100vw;
-  height: 100vh;
-  padding-top: 20vh;
-  background-image: url("/trianglify2.png");
-  z-index: 2;
-  position: relative;
-}
-.content {
-  margin: 0 auto;
-  padding: 50px;
-  font-weight: bolder;
-  font-size: x-large;
-  width: 80%;
-  background: rgba(60, 60, 60, 0.5);
-
-  backdrop-filter: blur(10px);
+  image-rendering: optimizeQuality;
+  display: flex;
 }
 
-.wrapper {
-  text-align: center;
+h3,
+.content,
+.navbar {
+  pointer-events: none;
 }
 
-.wrapper .dynamic-txts {
-  height: 90px;
-  line-height: 90px;
-  overflow: hidden;
+/* TYPEWRITR */
+
+.typewriter {
+  display: inline-block;
 }
-.dynamic-txts li {
-  list-style: none;
-  color: #fc6d6d;
-  padding-right: 4.5vh;
-  font-size: 60px;
-  font-weight: 500;
-  position: relative;
-  top: 0;
-  animation: slide 12s steps(4) infinite;
-}
-@keyframes slide {
-  100% {
-    top: -360px;
-  }
-}
-.dynamic-txts li span {
-  position: relative;
-  line-height: 90px;
-}
-.dynamic-txts li span::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  height: 100%;
+
+.typewriter-text {
+  border-right: 3px solid;
   width: 100%;
-  background: #22252a;
-  border-left: 2px solid #fc6d6d;
-  animation: typing 3s steps(1000) infinite;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: typing 6s, cursor 0.4s step-end infinite alternate;
 }
-@keyframes typing {
-  40%,
-  60% {
-    left: calc(100% + 30px);
+
+@keyframes cursor {
+  50% {
+    border-color: transparent;
   }
-  100% {
-    left: 0;
+}
+
+@keyframes typing {
+  from {
+    width: 0;
   }
 }
