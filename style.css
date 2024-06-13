@@ -10,6 +10,10 @@ html {
   overflow: hidden;
 }
 
+.nopointer {
+  pointer-events: none;
+}
+
 body {
   margin: 0;
   font-size: 26px;
@@ -32,13 +36,11 @@ canvas {
   display: flex;
 }
 
-h3,
-.content,
 .navbar {
-  pointer-events: none;
+  z-index: 100;
 }
 
-/* TYPEWRITR */
+/* TYPEWRITER */
 
 .typewriter {
   display: inline-block;
@@ -46,15 +48,27 @@ h3,
 
 .typewriter-text {
   border-right: 3px solid;
-  width: 100%;
   white-space: nowrap;
   overflow: hidden;
-  animation: typing 6s, cursor 0.4s step-end infinite alternate;
+  display: inline-block;
+  animation: typing 6s linear, borderFadeLoop 4s ease-in-out infinite;
 }
 
-@keyframes cursor {
+@keyframes borderFadeLoop {
+  0% {
+    border-right: 3px solid transparent;
+  }
+  25% {
+    border-right: 3px solid white;
+  }
   50% {
-    border-color: transparent;
+    border-right: 3px solid transparent;
+  }
+  75% {
+    border-right: 3px solid white;
+  }
+  100% {
+    border-right: 3px solid transparent;
   }
 }
 
@@ -62,4 +76,9 @@ h3,
   from {
     width: 0;
   }
+  to {
+    width: 100%;
+  }
 }
+
+/**/
