@@ -32,14 +32,17 @@ function initCanvas() {
   }
 }
 
+const greetText = document.getElementById("greet-text");
 const typewriterText = document.getElementById("typewriter-text");
 
 function updateText() {
   // handle landing page text resizing
   if (window.innerWidth < 750) {
     typewriterText.style.fontSize = "3.5vw";
+    greetText.style.fontSize = "2.5em";
   } else {
     typewriterText.style.fontSize = "2vw";
+    greetText.style.fontSize = "3em";
   }
 }
 
