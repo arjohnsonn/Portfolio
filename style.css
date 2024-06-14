@@ -5,11 +5,11 @@
   padding: 0;
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
+  scroll-behavior: smooth;
 }
 
 html {
   overflow: hidden;
-  scroll-behavior: smooth !important;
 }
 
 .nopointer {
@@ -98,7 +98,7 @@ canvas {
   white-space: nowrap;
   overflow: hidden;
   display: inline-block;
-  animation: typing 6s linear, borderFadeLoop 4s ease-in-out infinite;
+  animation: typing 4s linear, borderFadeLoop 4s ease-in-out infinite;
 }
 
 @keyframes borderFadeLoop {
@@ -128,4 +128,80 @@ canvas {
   }
 }
 
-/**/
+/* EXPERIENCE */
+
+.timeline {
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+.timeline > ul {
+  list-style: none;
+  padding: 0;
+}
+
+.timeline > ul > li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 6vh;
+}
+
+.timeline > ul > li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  background-color: #db3434;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.timeline > ul > li::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 10px;
+  width: 2px;
+  height: calc(100% - 10px);
+  background-color: #db3434;
+  z-index: 0;
+}
+
+.timeline > ul > li:last-child::after {
+  display: none;
+}
+
+.timeline ul ul {
+  list-style: disc;
+  padding-left: 40px; /* or adjust as needed */
+  margin-bottom: 0;
+}
+
+.timeline ul ul li {
+  position: static; /* Reset the position */
+  padding-left: 0; /* Remove left padding */
+  margin-bottom: 0; /* Remove bottom margin */
+}
+
+.timeline ul ul li::before,
+.timeline ul ul li::after {
+  content: none; /* Remove the pseudo-elements */
+}
+
+/* PROJECTS */
+
+.project-card {
+  background-color: rgba(15, 15, 15, 0.8);
+  border-radius: 20px;
+}
+
+.zoom {
+  transition: transform 0.75s ease-in-out;
+}
+
+.zoom:hover {
+  transform: scale(1.025);
+}

@@ -140,3 +140,5 @@ function tick() {
 }
 
 tick();
+
+// Progress Bar

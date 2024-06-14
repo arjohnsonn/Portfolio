@@ -13,52 +13,19 @@
     />
   </head>
   <body>
-    <!--<nav class="navbar navbar-expand-lg bg-body-tertiary">
-      <div class="container-fluid">
-        <a class="navbar-brand" style="padding: 1vh" href="#">Aiden Johnson</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Work</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>-->
     <ul
+      id="landing"
       class="nav nav-underline justify-content-center"
       style="padding-top: 2vh"
     >
       <li class="nav-item">
-        <a class="nav-link text-white" href="#">Landing</a>
+        <a class="nav-link text-white" href="#landing">Landing</a>
       </li>
       <li class="nav-item">
-        <a
-          class="nav-link text-white"
-          onClick="document.getElementById('about').scrollIntoView();"
-          href="#"
-          >About</a
-        >
+        <a class="nav-link text-white" href="#experience">Experience</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-white" href="#">Projects</a>
+        <a class="nav-link text-white" href="#projects">Projects</a>
       </li>
     </ul>
 
@@ -96,20 +63,183 @@
       </div>
     </div>
 
-    <div
-      class="nopointer"
-      style="text-align: center; margin-top: 50vh; margin-bottom: 10vh"
-    >
-      <div style="display: inline-block" id="about">
-        <p
-          id="greet-text"
-          style="font-size: 3em; font-weight: light; display: inline-block"
-        >
-          About
+    <!-- EXPERIENCE -->
+    <div style="text-align: center; margin-top: 50vh">
+      <div style="display: inline-block" id="experience">
+        <p style="font-size: 3em; font-weight: light; display: inline-block">
+          Experience
         </p>
       </div>
     </div>
 
+    <div class="timeline" style="margin: 3vh 10vw 0px 10vw">
+      <ul>
+        <li>
+          <b style="font-size: 23px">Popular Roblox RP Game</b>
+          <p>
+            <i><b>Owner & Programmer</b> // January 2022 - Present</i>
+          </p>
+          <ul>
+            <li>
+              <p>Managed a development team of approximately 10 people</p>
+            </li>
+            <li>
+              <p>
+                Programmed front-end and back-end features, security, and UI/UX.
+                Developed a Discord bot to manage players' data externally
+              </p>
+            </li>
+            <li>
+              <p>
+                Started as a high school student with other extracurriculars and
+                sports
+              </p>
+            </li>
+            <li>
+              <p>Over 400,000 players & helped pay for my college expenses</p>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <!-- PROJECTS -->
+    <div style="text-align: center; margin-top: 5vh">
+      <!-- Adjusted margin-top to bring closer -->
+      <div id="projects">
+        <p style="font-size: 3em; font-weight: light; display: inline-block">
+          Projects
+        </p>
+      </div>
+
+      <!-- Adjusted margin and padding to bring closer -->
+    </div>
+
+    <div
+      class="container overflow-hidden text-center"
+      style="padding-bottom: 20vh"
+    >
+      <div class="row gx-5">
+        <!-- ENTRIES -->
+        <div class="col">
+          <div class="p-4 project-card">
+            <b style="font-size: 30px">Roblox Roleplay Game</b>
+            <div
+              id="carouselExampleFade"
+              style="padding-top: 1vh"
+              class="carousel slide carousel-fade"
+            >
+              <div class="carousel-inner zoom">
+                <div class="carousel-item active">
+                  <a href="#"
+                    ><img
+                      src="/Images/Image1.png"
+                      class="d-block w-100"
+                      alt="..."
+                  /></a>
+                </div>
+                <div class="carousel-item">
+                  <a href="#"
+                    ><img
+                      src="/Images/Image2.png"
+                      class="d-block w-100"
+                      alt="..."
+                  /></a>
+                </div>
+              </div>
+              <button
+                class="carousel-control-prev"
+                type="button"
+                data-bs-target="#carouselExampleFade"
+                data-bs-slide="prev"
+              >
+                <span
+                  class="carousel-control-prev-icon"
+                  aria-hidden="true"
+                ></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button
+                class="carousel-control-next"
+                type="button"
+                data-bs-target="#carouselExampleFade"
+                data-bs-slide="next"
+              >
+                <span
+                  class="carousel-control-next-icon"
+                  aria-hidden="true"
+                ></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+            <p style="padding-top: 3vh">
+              Loved by over 400,000 players, we are recognized as one of the
+              most realistic Roblox roleplay games. Programmed with <b>Luau</b>,
+              Roblox's version of Lua, on both front-end and back-end.<br /><br />
+              <i style="font-size: 10px" class="text-center"
+                >All images are natural with no editing and modification.</i
+              >
+            </p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="p-4 project-card">
+            <b style="font-size: 30px">Discord Bot</b>
+            <div
+              id="carouselExampleFade"
+              style="padding-top: 1vh"
+              class="carousel slide carousel-fade"
+            >
+              <div class="carousel-inner zoom">
+                <div class="carousel-item active">
+                  <a href="#"
+                    ><img
+                      src="https://www.insidehighered.com/sites/default/files/styles/max_650x650/public/2023-04/Discord-Symbol.png?itok=tj1Xt3tu"
+                      class="d-block w-100"
+                      alt="..."
+                  /></a>
+                </div>
+              </div>
+              <button
+                class="carousel-control-prev"
+                type="button"
+                data-bs-target="#carouselExampleFade"
+                data-bs-slide="prev"
+              >
+                <span
+                  class="carousel-control-prev-icon"
+                  aria-hidden="true"
+                ></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button
+                class="carousel-control-next"
+                type="button"
+                data-bs-target="#carouselExampleFade"
+                data-bs-slide="next"
+              >
+                <span
+                  class="carousel-control-next-icon"
+                  aria-hidden="true"
+                ></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+            <p style="padding-top: 3vh">
+              Created for the goal of managing my Roblox game without even
+              joining the game. This bot is able to manage in-game player data,
+              moderate players, keep track of Discord & game moderations, and
+              remotely communicate with the game.<br /><br />
+              <i style="font-size: 10px" class="text-center"
+                >JavaScript, MongoDB, Roblox's Open Cloud API</i
+              >
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCRIPTS -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
