@@ -47,10 +47,15 @@
       style="padding-top: 2vh"
     >
       <li class="nav-item">
-        <a class="nav-link text-white">Landing</a>
+        <a class="nav-link text-white" href="#">Landing</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-white" href="#about">About</a>
+        <a
+          class="nav-link text-white"
+          onClick="document.getElementById('about').scrollIntoView();"
+          href="#"
+          >About</a
+        >
       </li>
       <li class="nav-item">
         <a class="nav-link text-white" href="#">Projects</a>
@@ -93,7 +98,7 @@
 
     <div
       class="nopointer"
-      style="text-align: center; margin-top: 60vh; margin-bottom: 10vh"
+      style="text-align: center; margin-top: 50vh; margin-bottom: 10vh"
     >
       <div style="display: inline-block" id="about">
         <p
