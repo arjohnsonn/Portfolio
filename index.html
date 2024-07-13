@@ -11,13 +11,21 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+    <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+/>
+
   </head>
   <body>
-    <ul
+   <ul
       id="landing"
       class="nav nav-underline justify-content-center"
-      style="padding-top: 2vh"
+      style="padding-top: 2vh; font-size: 1.1em;"
     >
+    <li class="nav-item">
+      <a class="nav-link text-white" href="#about-me">About Me</a>
+    </li>
       <li class="nav-item">
         <a class="nav-link text-white" href="#landing">Landing</a>
       </li>
@@ -27,7 +35,13 @@
       <li class="nav-item">
         <a class="nav-link text-white" href="#projects">Projects</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link text-white" href="#contact">Contact</a>
+      </li>
     </ul>
+    <a class="fixed-icon text-white" href="https://linkedin.com/in/aiden-johnson-35991a2b2/" target="_blank">
+      <i class="fa-brands fa-linkedin"></i>
+    </a>
 
     <canvas id="canvas"></canvas>
 
@@ -36,6 +50,7 @@
         <p
           id="greet-text"
           style="font-size: 3em; font-weight: light; display: inline-block"
+          class="fade-down-desktop fade-mobile animation"
         >
           Hello, I'm
           <span
@@ -54,7 +69,7 @@
     <div class="nopointer" style="text-align: center; margin: -3vh">
       <div class="typewriter" style="display: inline-block">
         <p
-          class="typewriter-text"
+          class="typewriter-text fade-up-desktop fade-mobile animation"
           id="typewriter-text"
           style="font-weight: lighter; display: inline-block"
         >
@@ -63,17 +78,72 @@
       </div>
     </div>
 
+    
+    <!-- ABOUT ME -->
+    <div style="text-align: center; margin-top: 50vh;">
+      <div style="display: inline-block" id="about-me">
+        <p style="font-size: 3em; font-weight: bold; display: inline-block" class="fade-up-desktop fade-mobile animation">
+          About Me
+        </p>
+      </div>
+    </div>
+    <div
+    class="container overflow-hidden text-center fade-up-desktop fade-mobile animation"
+    style="padding-bottom: 10vh"
+  >
+    <div class="row gx-5">
+      <!-- ENTRIES -->
+      <div class="col">
+        <div class="p-4 project-card">
+         <div class="fade-right-desktop fade-mobile animation"> <!-- PAST -->
+          <h3>
+            Past
+           </h3>
+           <p>
+            Taking after my father, I initially wanted to become an aerospace engineer. However, as I grew older with technology surrounding me, I became naturally experienced in all things software. Because of this, I decided to combine my desire of becoming like my father and my love for software, and entered the world of programming.
+           </p>
+         </div>
+         <div class="fade-right-desktop fade-mobile animation"> <!-- PRESENT -->
+          <h3>
+            Present
+           </h3>
+           <p>
+            Currently, I am a college freshman attending the <b style="color: rgb(212, 120, 0);">University of Texas at Austin</b> for <b>Computer Science</b>. Additionally, on the side, I own and program a popular Roblox game played over 470,000 times as a front & back-end developer. 
+           </p>
+         </div>
+         <div class="fade-right-desktop fade-mobile animation"> <!-- FUTURE -->
+          <h3>
+            Future
+           </h3>
+           <p>
+            Every goal I have currently are building blocks to build my future, which include graduating from college, and becoming either a software engineer or entering the cybersecurity field. However, all things technology and software will pique my interest always.
+          </p>
+         </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-4 project-card">
+          <img
+                    src="./Images/Portrait.png"
+                    class="d-block w-100"
+                    alt="..."
+                />
+        </div>
+      </div>
+    </div>
+  </div>
+
     <!-- EXPERIENCE -->
-    <div style="text-align: center; margin-top: 50vh">
+    <div style="text-align: center; margin-top: 20vh;">
       <div style="display: inline-block" id="experience">
-        <p style="font-size: 3em; font-weight: light; display: inline-block">
+        <p style="font-size: 3em; font-weight: bold; display: inline-block" class="fade-up-desktop fade-mobile animation">
           Experience
         </p>
       </div>
     </div>
 
     <div class="timeline" style="margin: 3vh 10vw 0px 10vw">
-      <ul>
+      <ul class="fade-up-desktop fade-mobile animation">
         <li>
           <b style="font-size: 23px">Popular Roblox RP Game</b>
           <p>
@@ -103,20 +173,41 @@
       </ul>
     </div>
 
+    <div style="text-align: center; margin-top: 10vh;">
+      <div style="display: inline-block" id="experience">
+        <p style="font-size: 2em; font-weight: light; display: inline-block" class="fade-down-desktop fade-mobile animation">
+          Skills
+        </p>
+      </div>
+      <p class="fade-up-desktop fade-mobile animation">
+        <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
+        <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white"/>
+        <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white"/>
+        <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
+        <img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white">
+        <img src="https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white">
+        <img src="https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white">
+        <img src="https://img.shields.io/badge/lua-2C2D72?style=for-the-badge&logo=lua&logoColor=white">
+        <img src="https://img.shields.io/badge/Roblox-000000?style=for-the-badge&logo=roblox&logoColor=white">
+        <img src="https://img.shields.io/badge/Luau-00A2FF?style=for-the-badge&logo=robloxstudio&logoColor=white">
+        <img src="https://img.shields.io/badge/Xcode-147EFB?style=for-the-badge&logo=xcode&logoColor=white">
+        <img src="https://img.shields.io/badge/Swift-F05138?style=for-the-badge&logo=swift&logoColor=white">
+      </p>
+    </div>
+
+
     <!-- PROJECTS -->
-    <div style="text-align: center; margin-top: 5vh">
+    <div style="text-align: center; margin-top: 15vh" class="fade-up-desktop fade-mobile animation">
       <!-- Adjusted margin-top to bring closer -->
       <div id="projects">
-        <p style="font-size: 3em; font-weight: light; display: inline-block">
+        <p style="font-size: 3em; font-weight: bold; display: inline-block">
           Projects
         </p>
       </div>
-
-      <!-- Adjusted margin and padding to bring closer -->
     </div>
 
     <div
-      class="container overflow-hidden text-center"
+      class="container overflow-hidden text-center fade-up-desktop fade-mobile animation"
       style="padding-bottom: 20vh"
     >
       <div class="row gx-5">
@@ -173,66 +264,53 @@
               </button>
             </div>
             <p style="padding-top: 3vh">
-              Loved by over 400,000 players, we are recognized as one of the
-              most realistic Roblox roleplay games. Programmed with <b>Luau</b>,
+              Loved by tens of thousands of players, we are recognized as one of the
+              most realistic Roblox roleplay games with over 80,000 hours of playtime. Programmed with <b>Luau</b>,
               Roblox's version of Lua, on both front-end and back-end.<br /><br />
-              <i style="font-size: 10px" class="text-center"
-                >All images are natural with no editing and modification.</i
-              >
+              <img
+                src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgames.roblox.com%2Fv1%2Fgames%3FuniverseIds%3D4221645607&query=data%5B0%5D.visits&style=for-the-badge&label=Visits&color=white"
+                alt="Game Visits"
+              />
+              <p>
+                <img src="https://img.shields.io/badge/lua-2C2D72?style=for-the-badge&logo=lua&logoColor=white">
+                <img src="https://img.shields.io/badge/Roblox-000000?style=for-the-badge&logo=roblox&logoColor=white">
+                <img src="https://img.shields.io/badge/Luau-00A2FF?style=for-the-badge&logo=robloxstudio&logoColor=white">
+              </p>
             </p>
           </div>
         </div>
         <div class="col">
           <div class="p-4 project-card">
-            <b style="font-size: 30px">Discord Bot</b>
+            <b style="font-size: 30px">External Game Manager</b>
             <div
               id="carouselExampleFade"
               style="padding-top: 1vh"
-              class="carousel slide carousel-fade"
+              class="carousel"
             >
               <div class="carousel-inner zoom">
                 <div class="carousel-item active">
                   <a href="#"
                     ><img
-                      src="https://www.insidehighered.com/sites/default/files/styles/max_650x650/public/2023-04/Discord-Symbol.png?itok=tj1Xt3tu"
+                      src="./Images/overview.png"
                       class="d-block w-100"
                       alt="..."
                   /></a>
                 </div>
               </div>
-              <button
-                class="carousel-control-prev"
-                type="button"
-                data-bs-target="#carouselExampleFade"
-                data-bs-slide="prev"
-              >
-                <span
-                  class="carousel-control-prev-icon"
-                  aria-hidden="true"
-                ></span>
-                <span class="visually-hidden">Previous</span>
-              </button>
-              <button
-                class="carousel-control-next"
-                type="button"
-                data-bs-target="#carouselExampleFade"
-                data-bs-slide="next"
-              >
-                <span
-                  class="carousel-control-next-icon"
-                  aria-hidden="true"
-                ></span>
-                <span class="visually-hidden">Next</span>
-              </button>
+              
             </div>
             <p style="padding-top: 3vh">
               Created for the goal of managing my Roblox game without even
               joining the game. This bot is able to manage in-game player data,
               moderate players, keep track of Discord & game moderations, and
               remotely communicate with the game.<br /><br />
-              <i style="font-size: 10px" class="text-center"
-                >JavaScript, MongoDB, Roblox's Open Cloud API</i
-              >
+              <p>
+                <img src="https://img.shields.io/badge/Roblox-000000?style=for-the-badge&logo=roblox&logoColor=white">
+                <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
+                <img src="https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white">
+                <img src="https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white">
+                <img src="https://img.shields.io/badge/RBX Open Cloud API-00A2FF?style=for-the-badge&logo=roblox&logoColor=white">
+              </p>
             </p>
           </div>
         </div>
@@ -255,6 +333,7 @@
       integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabsYfZo0T0to5eqruptLy"
       crossorigin="anonymous"
     ></script>
+    <script src="landing.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

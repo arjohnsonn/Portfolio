@@ -22,7 +22,6 @@ body {
   color: #ffffff;
   height: 100vh;
   perspective: 1px;
-  transform-style: preserve-3d;
   overflow-x: hidden;
   overflow-y: auto;
 
@@ -45,7 +44,7 @@ body {
 }
 
 canvas {
-  background: #232323;
+  background: #1d1d1d;
   position: absolute;
   top: 0;
   left: 0;
@@ -83,6 +82,14 @@ canvas {
     var(--dot-color);
 }
 
+.fixed-icon {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  font-size: 1.5em;
+  z-index: 1000;
+}
+
 .navbar {
   z-index: 100;
 }
@@ -98,7 +105,8 @@ canvas {
   white-space: nowrap;
   overflow: hidden;
   display: inline-block;
-  animation: typing 4s linear, borderFadeLoop 4s ease-in-out infinite;
+  animation: typing 4s cubic-bezier(0.25, 0.5, 0.68, 0.89),
+    borderFadeLoop 4s ease-in-out infinite;
 }
 
 @keyframes borderFadeLoop {
@@ -204,4 +212,66 @@ canvas {
 
 .zoom:hover {
   transform: scale(1.025);
+}
+
+/* ANIMATIONS */
+@media screen and (min-width: 768px) {
+  .fade-left-desktop,
+  .fade-right-desktop {
+    opacity: 0;
+    transition: 1500ms all ease-in-out;
+  }
+  .fade-left-desktop {
+    transform: translateX(50px);
+  }
+  .fade-right-desktop {
+    transform: translateX(-50px);
+  }
+  .fade-left-desktop.animate,
+  .fade-right-desktop.animate {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .fade-down-desktop,
+  .fade-up-desktop {
+    opacity: 0;
+    transition: 1000ms all cubic-bezier(0.05, 0.75, 0.21, 0.97);
+    transform: translateY(20px);
+  }
+  .fade-up-desktop {
+    transform: translateY(50px);
+  }
+  .fade-down-desktop {
+    transform: translateY(-50px);
+  }
+  .fade-down-desktop.animate,
+  .fade-up-desktop.animate {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media screen and (max-width: 767px) {
+  .fade-down-mobile,
+  .fade-up-mobile {
+    opacity: 0;
+    transition: 1500ms all ease-in-out;
+  }
+  .fade-up-mobile {
+    transform: translateY(50px);
+  }
+  .fade-down-mobile {
+    transform: translateY(-50px);
+  }
+  .fade-down-mobile.animate,
+  .fade-up-mobile.animate {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .fade-mobile {
+    opacity: 0;
+    transition: 1000ms all ease-in-out;
+  }
+  .fade-mobile.animate {
+    opacity: 1;
+  }
 }
