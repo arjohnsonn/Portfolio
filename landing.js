@@ -132,9 +132,38 @@ function update() {
   }
 }
 
-canvas.addEventListener("mousemove", function (e) {
+document.body.addEventListener("mousemove", function (e) {
   mouse.x = e.clientX * 2;
   mouse.y = e.clientY * 2;
+});
+
+window.addEventListener("wheel", function () {
+  var element = document.getElementById("greet-text");
+
+  var rect = element.getBoundingClientRect();
+  var windowHeight =
+    window.innerHeight || document.documentElement.clientHeight;
+
+  // Calculate the visible height of the element
+  var visibleHeight =
+    Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0);
+
+  // Calculate the percentage of the element that is visible
+  var visiblePercentage = (visibleHeight / element.offsetHeight) * 100;
+
+  // Return the percentage rounded to two decimal places
+  var percent = Math.max(
+    0,
+    Math.min(50, Math.round(visiblePercentage * 100) / 100)
+  );
+
+  if (percent > 0) {
+    canvas.classList.add("fade-in");
+    canvas.classList.remove("fade-out");
+  } else {
+    canvas.classList.add("fade-out");
+    canvas.classList.remove("fade-in");
+  }
 });
 
 // Update and draw
