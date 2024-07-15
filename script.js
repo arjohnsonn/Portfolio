@@ -19,7 +19,7 @@ document.querySelectorAll(".animation").forEach(function (i) {
   }
 });
 
-function updateText() {
+function updateColumns() {
   // handle landing page text resizing
   if (window.innerWidth < 850) {
     document.getElementById("column-break").style = "";
@@ -28,10 +28,10 @@ function updateText() {
   }
 }
 
-updateText();
+updateColumns();
 
 addEventListener("resize", () => {
-  updateText();
+  updateColumns();
 });
 
 //
