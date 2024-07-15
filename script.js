@@ -1,4 +1,4 @@
-// Reverted back to non-arrow functions because it would break IE11 completely.
+import { isMobile } from "./isMobile.js";
 
 var observer = new IntersectionObserver(
   function (entries) {
@@ -21,7 +21,7 @@ document.querySelectorAll(".animation").forEach(function (i) {
 
 function updateColumns() {
   // handle landing page text resizing
-  if (window.innerWidth < 1000) {
+  if (isMobile()) {
     document.getElementById("column-break").style = "";
   } else {
     document.getElementById("column-break").style = "display: none;";
@@ -51,14 +51,14 @@ function getVisibility(element) {
   var windowHeight =
     window.innerHeight || document.documentElement.clientHeight;
 
-  // Calculate the visible height of the element
+  // visible height of the element
   var visibleHeight =
     Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0);
 
-  // Calculate the percentage of the element that is visible
+  // percentage of the element that is visible
   var visiblePercentage = (visibleHeight / element.offsetHeight) * 100;
 
-  // Return the percentage rounded to two decimal places
+  // rounded to two decimal places
   var percent = Math.max(
     0,
     Math.min(50, Math.round(visiblePercentage * 100) / 100)

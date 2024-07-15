@@ -1,16 +1,17 @@
+import { isMobile } from "./isMobile.js";
+
 var canvas = document.getElementById("canvas"),
   ctx = canvas.getContext("2d");
 
 const starSpeed = 30;
-var stars = [], // Array that contains the stars
-  FPS = 60, // Frames per second
-  x = 150, // Number of stars, reduced from 230
+var stars = [],
+  FPS = 60,
+  x = 150, // quantity of stars
   mouse = {
     x: 0,
     y: 0,
   }; // mouse location
 
-// Increase canvas resolution and scale context
 function initCanvas() {
   canvas.width = window.innerWidth * 2;
   canvas.height = window.innerHeight * 2;
@@ -20,7 +21,7 @@ function initCanvas() {
 
   stars = [];
 
-  // Push stars to array
+  // insert stars array with star data
   for (var i = 0; i < x; i++) {
     stars.push({
       x: Math.random() * canvas.width,
@@ -38,7 +39,7 @@ const typewriterText = document.getElementById("typewriter-text");
 function updateText() {
   console.log(window.innerWidth);
   // handle landing page text resizing
-  if (window.innerWidth < 1000) {
+  if (isMobile()) {
     typewriterText.style.fontSize = "3.5vw";
     greetText.style.fontSize = "2.5em";
     canvas.style =
@@ -56,6 +57,7 @@ setTimeout(() => {
   // fixes the issue of the internal canvas resolution not being set correctly
   initCanvas();
   updateText();
+  console.log(isMobile());
 }, 1000);
 
 let resizeTimeout;
@@ -64,14 +66,13 @@ addEventListener("resize", () => {
   resizeTimeout = setTimeout(() => {
     initCanvas();
     updateText();
-  }, 100); // Debounced resize event with 100ms delay
+  }, 100); // debounce
 });
 
-// Draw the scene
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Draw stars
+  // draw stars
   ctx.globalCompositeOperation = "source-over";
   for (var i = 0, x = stars.length; i < x; i++) {
     var s = stars[i];
@@ -99,7 +100,7 @@ function draw() {
   ctx.strokeStyle = "gray";
   ctx.stroke();
 
-  // Create vignette effect around mouse
+  // create vignette effect around mouse
   var gradient = ctx.createRadialGradient(
     mouse.x / 2,
     mouse.y / 2,
@@ -129,7 +130,7 @@ function distance(point1, point2) {
   return Math.sqrt(xs + ys);
 }
 
-// Update star locations
+// update star locations
 function update() {
   for (var i = 0, x = stars.length; i < x; i++) {
     var s = stars[i];
@@ -153,14 +154,14 @@ window.addEventListener("wheel", function () {
   var windowHeight =
     window.innerHeight || document.documentElement.clientHeight;
 
-  // Calculate the visible height of the element
+  // visible height of the element
   var visibleHeight =
     Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0);
 
-  // Calculate the percentage of the element that is visible
+  // percentage of the element that is visible
   var visiblePercentage = (visibleHeight / element.offsetHeight) * 100;
 
-  // Return the percentage rounded to two decimal places
+  // percentage rounded to two decimal places
   var percent = Math.max(
     0,
     Math.min(50, Math.round(visiblePercentage * 100) / 100)
@@ -175,7 +176,7 @@ window.addEventListener("wheel", function () {
   }
 });
 
-// Update and draw
+// initialize
 function tick() {
   draw();
   update();
