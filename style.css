@@ -272,6 +272,23 @@ canvas {
   }
 }
 @media screen and (max-width: 767px) {
+  .fade-left-mobile,
+  .fade-right-mobile {
+    opacity: 0;
+    transition: 1500ms all ease-in-out;
+  }
+  .fade-left-mobile {
+    transform: translateX(50px);
+  }
+  .fade-right-mobile {
+    transform: translateX(-50px);
+  }
+  .fade-left-mobile.animate,
+  .fade-right-mobile.animate {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
   .fade-down-mobile,
   .fade-up-mobile {
     opacity: 0;
