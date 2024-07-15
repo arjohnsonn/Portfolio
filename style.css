@@ -19,7 +19,7 @@ html {
 body {
   margin: 0;
   font-size: 26px;
-  color: #ffffff;
+  color: #000000;
   height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
@@ -43,6 +43,7 @@ body {
 }
 
 canvas {
+  background-color: transparent;
   opacity: 0.5;
   position: absolute;
   top: 0;

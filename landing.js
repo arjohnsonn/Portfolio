@@ -40,14 +40,19 @@ function updateText() {
   if (window.innerWidth < 750) {
     typewriterText.style.fontSize = "3.5vw";
     greetText.style.fontSize = "2.5em";
+    canvas.style = "position: absolute; z-index: -1; display: none;";
   } else {
     typewriterText.style.fontSize = "2vw";
     greetText.style.fontSize = "3em";
+    canvas.style = "position: absolute; z-index: -1;";
   }
 }
 
-initCanvas();
-updateText();
+setTimeout(() => {
+  // fixes the issue of the internal canvas resolution not being set correctly
+  initCanvas();
+  updateText();
+}, 100);
 
 let resizeTimeout;
 addEventListener("resize", () => {
