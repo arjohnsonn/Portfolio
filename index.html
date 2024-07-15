@@ -18,9 +18,12 @@
   </head>
   <body>
     <p class="fixed" id="landing"></p>
+
+    <!-- NAVBAR -->
     <nav
-      class="navbar fixed-top navbar-expand-lg"
+      class="navbar navbar-expand-lg"
       style="backdrop-filter: blur(8px)"
+      id="navbar"
     >
       <div class="container-fluid">
         <button
@@ -54,7 +57,11 @@
       </div>
     </nav>
 
-    <div style="position: absolute; top: 2.25vh; right: 20px; z-index: 10000">
+    <!-- SOCIAL MEDIA ICONS -->
+    <div
+      style="position: absolute; top: 2.25vh; right: 20px; z-index: 10000"
+      class="fade-left-desktop fade-mobile animation"
+    >
       <a
         class="p-2 text-white me-auto no-underline"
         href="https://linkedin.com/in/aiden-johnson-35991a2b2/"
@@ -78,13 +85,14 @@
       </a>
     </div>
 
+    <!-- INTERACTIVE BACKGROUND -->
     <canvas
       id="canvas"
       style="position: absolute; z-index: -1"
       class="scroll-fade"
     ></canvas>
 
-    <div class="nopointer" style="text-align: center; margin-top: 45vh" id="">
+    <div class="nopointer" style="text-align: center; margin-top: 33vh" id="">
       <div style="display: inline-block">
         <p
           id="greet-text"
@@ -165,17 +173,16 @@
               <!-- FUTURE -->
               <h3>Future</h3>
               <p>
-                Every goal I have currently are building blocks to build my
-                future, which include graduating from college, and becoming
-                either a software engineer or entering the cybersecurity field.
-                However, all things technology and software will pique my
-                interest always.
+                Every goal I set are building blocks for my future, which
+                include graduating from college, and becoming either a software
+                engineer or entering the cybersecurity field. However, all
+                things technology and software will pique my interest always.
               </p>
             </div>
           </div>
         </div>
 
-        <div class="w-100" id="column-break" style="display: unset"></div>
+        <div class="w-100" id="column-break"></div>
 
         <div class="col">
           <div class="p-4 project-card">
@@ -198,35 +205,35 @@
     </div>
 
     <div class="timeline" style="margin: 3vh 10vw 0px 10vw">
-      <ul class="fade-up-desktop fade-mobile animation">
-        <li>
+      <ul>
+        <li class="fade-down-desktop fade-mobile animation">
           <b style="font-size: 23px">Popular Roblox RP Game</b>
-          <p>
+          <p class="fade-up-desktop fade-mobile animation">
             <i><b>Owner & Programmer</b> // January 2022 - Present</i>
           </p>
           <ul>
-            <li>
+            <li class="fade-right-desktop fade-mobile animation">
               <p>Managed a development team of approximately 10 people</p>
             </li>
-            <li>
+            <li class="fade-right-desktop fade-mobile animation">
               <p>
                 Programmed frontend and backend features, security, and UI/UX.
                 Developed a Discord bot to manage players' data externally
               </p>
             </li>
-            <li>
+            <li class="fade-right-desktop fade-mobile animation">
               <p>
                 Features a platform-leading advanced anti-exploit system that
                 detects exploiters who inject and run malicious scripts
               </p>
             </li>
-            <li>
+            <li class="fade-right-desktop fade-mobile animation">
               <p>
                 Started as a high school student with other extracurriculars and
                 sports
               </p>
             </li>
-            <li>
+            <li class="fade-right-desktop fade-mobile animation">
               <p>
                 Over 168,000 hours of playtime, 400,000 visits & helped pay for
                 my college expenses
@@ -419,12 +426,63 @@
                 src="https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white"
               />
               <img
-                src="https://img.shields.io/badge/RBX Open Cloud API-00A2FF?style=for-the-badge&logo=roblox&logoColor=white"
+                src="https://img.shields.io/badge/Open Cloud API-00A2FF?style=for-the-badge&logo=roblox&logoColor=white"
               />
             </p>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div style="text-align: center; margin-top: 10">
+      <div style="display: inline-block" id="experience">
+        <p
+          style="font-size: 3em; font-weight: bold; display: inline-block"
+          class="fade-up-desktop fade-mobile animation"
+        >
+          Contact Me
+        </p>
+      </div>
+    </div>
+
+    <div style="padding-left: 20%; padding-right: 20%">
+      <form>
+        <div class="form-group row">
+          <label
+            for="context-email"
+            class="col-sm-2 col-form-label"
+            style="margin-bottom: 1vh"
+            >Email</label
+          >
+          <div class="col-sm-10">
+            <input
+              type="email"
+              class="form-control"
+              id="context-email"
+              placeholder="user@example.com"
+            />
+          </div>
+
+          <label for="contact-text" class="col-sm-2 col-form-label"
+            >Message</label
+          >
+          <div class="col-sm-10">
+            <textarea
+              type="email"
+              class="form-control"
+              id="contact-text"
+              placeholder="Your great inquiry here"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="text-center" style="margin-top: 3vh">
+          <div>
+            <button type="submit" class="btn btn-primary">Sign in</button>
+          </div>
+        </div>
+      </form>
     </div>
 
     <!-- SCRIPTS -->

@@ -240,6 +240,7 @@ canvas {
     opacity: 1;
     transform: translateX(0);
   }
+
   .fade-down-desktop,
   .fade-up-desktop {
     opacity: 0;

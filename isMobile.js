@@ -1,20 +1,17 @@
 export function isMobile() {
   const userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
-  // Check for Android
-  if (/android/i.test(userAgent)) {
-    return true;
-  }
+  // Android
+  if (/android/i.test(userAgent)) return true;
 
-  // Check for iOS
-  if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-    return true;
-  }
+  // iOS
+  if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) return true;
 
-  // Check for other mobile devices
-  if (/mobile/i.test(userAgent)) {
-    return true;
-  }
+  // Other mobile devices
+  if (/mobile/i.test(userAgent)) return true;
+
+  // Small screen
+  if (window.innerWidth < 800) return true;
 
   return false;
 }
