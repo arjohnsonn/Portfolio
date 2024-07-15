@@ -86,7 +86,6 @@ document.addEventListener("wheel", function () {
     button.classList.remove("active");
   });
 
-  console.log(closestElement.id);
   switch (closestElement.id) {
     case "greet-text":
       buttons[0].classList.add("active");

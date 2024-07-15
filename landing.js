@@ -56,7 +56,6 @@ setTimeout(() => {
   // fixes the issue of the internal canvas resolution not being set correctly
   initCanvas();
   updateText();
-  console.log(isMobile());
 }, 1000);
 
 let resizeTimeout;
