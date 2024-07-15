@@ -21,7 +21,7 @@
 
     <!-- NAVBAR -->
     <nav
-      class="navbar navbar-expand-lg"
+      class="navbar fixed-top navbar-expand-lg"
       style="backdrop-filter: blur(8px)"
       id="navbar"
     >
@@ -52,6 +52,9 @@
             <li class="nav-item">
               <a class="nav-link" href="#projects">Projects</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#contact">Contact</a>
+            </li>
           </ul>
         </div>
       </div>
@@ -60,24 +63,24 @@
     <!-- SOCIAL MEDIA ICONS -->
     <div
       style="position: absolute; top: 2.25vh; right: 20px; z-index: 10000"
-      class="fade-left-desktop fade-mobile animation"
+      class="social-media-icons fade-left-desktop fade-mobile animation"
     >
       <a
-        class="p-2 text-white me-auto no-underline"
+        class="p-2 me-auto no-underline"
         href="https://linkedin.com/in/aiden-johnson-35991a2b2/"
         target="_blank"
       >
         <i class="fa-brands fa-linkedin fa-xl"></i>
       </a>
       <a
-        class="p-2 text-white me-auto no-underline"
+        class="p-2 me-auto no-underline"
         href="https://github.com/arjohnsonn"
         target="_blank"
       >
         <i class="fa-brands fa-github fa-xl"></i>
       </a>
       <a
-        class="p-2 text-white me-auto no-underline"
+        class="p-2 me-auto no-underline"
         href="https://instagram.com/aidenn.johnson"
         target="_blank"
       >
@@ -92,7 +95,8 @@
       class="scroll-fade"
     ></canvas>
 
-    <div class="nopointer" style="text-align: center; margin-top: 33vh" id="">
+    <!-- GREETING TEXT -->
+    <div class="nopointer" style="text-align: center; margin-top: 40vh" id="">
       <div style="display: inline-block">
         <p
           id="greet-text"
@@ -130,7 +134,7 @@
       <div style="display: inline-block" id="about-me">
         <p
           style="font-size: 3em; font-weight: bold; display: inline-block"
-          class="fade-up-desktop fade-mobile animation"
+          class="fade-up-desktop fade-mobile animation gradient-title"
         >
           About Me
         </p>
@@ -197,7 +201,7 @@
       <div style="display: inline-block" id="experience">
         <p
           style="font-size: 3em; font-weight: bold; display: inline-block"
-          class="fade-up-desktop fade-mobile animation"
+          class="fade-up-desktop fade-mobile animation gradient-title"
         >
           Experience
         </p>
@@ -300,7 +304,10 @@
     >
       <!-- Adjusted margin-top to bring closer -->
       <div id="projects">
-        <p style="font-size: 3em; font-weight: bold; display: inline-block">
+        <p
+          style="font-size: 3em; font-weight: bold; display: inline-block"
+          class="gradient-title"
+        >
           Projects
         </p>
       </div>
@@ -435,55 +442,134 @@
     </div>
 
     <!-- CONTACT -->
-    <div style="text-align: center; margin-top: 10">
-      <div style="display: inline-block" id="experience">
+    <div style="text-align: center; margin-top: 5vh">
+      <div id="contact">
         <p
           style="font-size: 3em; font-weight: bold; display: inline-block"
-          class="fade-up-desktop fade-mobile animation"
+          class="fade-up-desktop fade-mobile animation gradient-title"
         >
           Contact Me
         </p>
       </div>
     </div>
-
     <div style="padding-left: 20%; padding-right: 20%">
-      <form>
+      <form action="https://api.web3forms.com/submit" method="post">
+        <input
+          type="hidden"
+          name="access_key"
+          value="e22c7707-2a27-4b48-8408-c6d8b06b70e2"
+        />
+        <input type="hidden" name="redirect" value="https://aidenj.dev/" />
         <div class="form-group row">
           <label
-            for="context-email"
-            class="col-sm-2 col-form-label"
+            for="contact-email"
+            class="col-sm-2 col-form-label fade-right-desktop fade-mobile animation"
             style="margin-bottom: 1vh"
-            >Email</label
+            >Email <span class="text-danger">*</span></label
           >
-          <div class="col-sm-10">
+          <div class="col-sm-10 fade-left-desktop fade-mobile animation">
             <input
               type="email"
+              name="email"
               class="form-control"
-              id="context-email"
+              id="contact-email"
               placeholder="user@example.com"
+              ,
+              title="Please enter a valid email address"
+            />
+          </div>
+          <label
+            for="contact-name"
+            class="col-sm-2 col-form-label fade-right-desktop fade-mobile animation"
+            style="margin-bottom: 1vh"
+            >Name <span class="text-danger">*</span></label
+          >
+          <div class="col-sm-10 fade-left-desktop fade-mobile animation">
+            <input
+              type="text"
+              name="name"
+              class="form-control"
+              id="contact-name"
+              placeholder="John Doe"
+              title="Please enter your name"
             />
           </div>
 
-          <label for="contact-text" class="col-sm-2 col-form-label"
-            >Message</label
+          <label
+            for="contact-text"
+            class="col-sm-2 col-form-label fade-right-desktop fade-mobile animation"
+            >Message <span class="text-danger">*</span></label
           >
-          <div class="col-sm-10">
+          <div class="col-sm-10 fade-left-desktop fade-mobile animation">
             <textarea
-              type="email"
+              name="message"
+              type="message"
               class="form-control"
               id="contact-text"
               placeholder="Your great inquiry here"
+              s
+              style="height: 150px"
+              title="Please enter a message"
             ></textarea>
           </div>
         </div>
 
-        <div class="text-center" style="margin-top: 3vh">
-          <div>
-            <button type="submit" class="btn btn-primary">Sign in</button>
+        <div class="text-center" style="margin-top: 3vh; margin-bottom: 3vh">
+          <div class="fade-up-desktop fade-mobile animation">
+            <button type="submit" class="btn btn-primary">Submit</button>
           </div>
         </div>
       </form>
     </div>
+    <p
+      style="font-size: 1em; font-weight: lighter; text-align: center"
+      class="fade-up-desktop fade-mobile animation"
+    >
+      You can also contact me through my emails:
+    </p>
+    <div
+      style="text-align: center"
+      class="fade-up-desktop fade-mobile animation"
+    >
+      <a
+        align="center"
+        href="https://mail.google.com/mail/?view=cm&to=arjohnsonn12@gmail.com"
+        class="fade-up-desktop fade-mobile animation no-underline"
+      >
+        <img
+          src="https://img.shields.io/badge/Personal-D14836?style=for-the-badge&logo=gmail&logoColor=white"
+        />
+      </a>
+      <a
+        align="center"
+        href="https://mail.google.com/mail/?view=cm&to=arjohnson12@utexas.edu"
+        class="fade-up-desktop fade-mobile animation no-underline"
+      >
+        <img
+          src="https://img.shields.io/badge/University-fc7b03?style=for-the-badge&logo=gmail&logoColor=white"
+        />
+      </a>
+    </div>
+
+    <div style="text-align: center; margin-top: 20vh">
+      <div>
+        <p
+          style="font-size: 1.25em; display: inline-block; margin-bottom: 17px"
+          class="fade-up-desktop fade-mobile animation"
+        >
+          Looks like you made it to the end, thanks for scrolling through!
+        </p>
+        <br />
+        <a href="#landing">
+          <i
+            class="fa-solid fa-arrow-up-long fa-2xl fade-up-desktop fade-mobile animation bouncing"
+          ></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- BOTTOM PADDING -->
+    <div style="margin-bottom: 6vh"></div>
 
     <!-- SCRIPTS -->
     <script

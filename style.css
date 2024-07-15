@@ -54,6 +54,14 @@ canvas {
   display: flex;
 }
 
+.gradient-title {
+  background: #ffffff;
+  background: linear-gradient(to bottom right, #ffffff 0%, #797979 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .navbar .navbar-nav {
   display: flex;
   justify-content: center;
@@ -240,6 +248,10 @@ canvas {
     opacity: 1;
     transform: translateX(0);
   }
+  .fade-desktop {
+    opacity: 1;
+    transition: 1000ms all ease-in-out;
+  }
 
   .fade-down-desktop,
   .fade-up-desktop {
@@ -283,4 +295,42 @@ canvas {
   .fade-mobile.animate {
     opacity: 1;
   }
+}
+
+.bouncing {
+  position: relative;
+  animation: bounce 3s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(3px);
+  }
+  25% {
+    transform: translateY(-3px);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+  75% {
+    transform: translateY(-3px);
+  }
+}
+
+.social-media-icons a {
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.social-media-icons a:hover {
+  color: #0077b5;
+}
+
+.social-media-icons a:hover:nth-child(2) {
+  color: #333;
+}
+
+.social-media-icons a:hover:nth-child(3) {
+  color: #e1306c;
 }

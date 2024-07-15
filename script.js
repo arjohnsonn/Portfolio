@@ -41,6 +41,7 @@ let elements = [
   document.getElementById("about-me"),
   document.getElementById("experience"),
   document.getElementById("projects"),
+  document.getElementById("contact"),
 ];
 
 let navBarButtonsUl = document.getElementById("navBarButtons");
@@ -98,6 +99,9 @@ document.addEventListener("wheel", function () {
       break;
     case "projects":
       buttons[3].classList.add("active");
+      break;
+    case "contact":
+      buttons[4].classList.add("active");
       break;
   }
 });
