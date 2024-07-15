@@ -40,6 +40,7 @@ function updateText() {
   console.log(window.innerWidth);
   // handle landing page text resizing
   if (isMobile()) {
+    greetText.textContent = toString(isMobile());
     typewriterText.style.fontSize = "3.5vw";
     greetText.style.fontSize = "2.5em";
     canvas.style =
