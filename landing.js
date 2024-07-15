@@ -40,7 +40,7 @@ function updateText() {
   // handle landing page text resizing
   if (isMobile() == true) {
     typewriterText.style.fontSize = "3.5vw";
-    greetText.style.fontSize = "7em";
+    greetText.style.fontSize = "2.5em";
     canvas.style =
       "position: absolute; z-index: -1; display: none; visibility: hidden;";
 
