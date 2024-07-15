@@ -52,11 +52,8 @@ function updateText() {
   }
 }
 
-setTimeout(() => {
-  // fixes the issue of the internal canvas resolution not being set correctly
-  initCanvas();
-  updateText();
-}, 1000);
+initCanvas();
+updateText();
 
 let resizeTimeout;
 addEventListener("resize", () => {
