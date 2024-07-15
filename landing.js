@@ -36,8 +36,9 @@ const greetText = document.getElementById("greet-text");
 const typewriterText = document.getElementById("typewriter-text");
 
 function updateText() {
+  console.log(window.innerWidth);
   // handle landing page text resizing
-  if (window.innerWidth < 850) {
+  if (window.innerWidth < 1000) {
     typewriterText.style.fontSize = "3.5vw";
     greetText.style.fontSize = "2.5em";
     canvas.style =

@@ -21,7 +21,7 @@ document.querySelectorAll(".animation").forEach(function (i) {
 
 function updateColumns() {
   // handle landing page text resizing
-  if (window.innerWidth < 850) {
+  if (window.innerWidth < 1000) {
     document.getElementById("column-break").style = "";
   } else {
     document.getElementById("column-break").style = "display: none;";
