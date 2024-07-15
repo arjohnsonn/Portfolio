@@ -40,14 +40,14 @@ function updateText() {
   // handle landing page text resizing
   if (isMobile() == true) {
     typewriterText.style.fontSize = "3.5vw";
-    greetText.style.fontSize = "2.5em";
+    greetText.style.fontSize = "7vw";
     canvas.style =
       "position: absolute; z-index: -1; display: none; visibility: hidden;";
 
     document.body.style.setProperty("--dot-size", "1.5px");
   } else {
     typewriterText.style.fontSize = "2vw";
-    greetText.style.fontSize = "3em";
+    greetText.style.fontSize = "4vw";
     canvas.style = "position: absolute; z-index: -1;";
     canvas.style.width = window.innerWidth + "px";
     canvas.style.height = window.innerHeight + "px";
