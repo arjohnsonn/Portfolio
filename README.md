@@ -1,5 +1,4 @@
-# Portfolio for I, Aiden Johnson
+# My Portfolio! 
 
-## Work in Progress
-
-## View the website here (temporary domain): https://arjohnsonn.github.io
+## Always a Work in Progress
+## View the website here: https://aidenjohnson.dev
