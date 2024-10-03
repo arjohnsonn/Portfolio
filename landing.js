@@ -112,7 +112,7 @@ function draw() {
     350
   );
   gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
-  gradient.addColorStop(1, $`rgba(0, 0, 0, ${!isMobile ? 1 : 0})`);
+  gradient.addColorStop(1, `rgba(0, 0, 0, ${!isMobile ? 1 : 0})`);
 
   ctx.globalCompositeOperation = "destination-out";
   ctx.fillStyle = gradient;
