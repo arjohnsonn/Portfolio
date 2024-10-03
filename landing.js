@@ -6,7 +6,7 @@ var canvas = document.getElementById("canvas"),
 const starSpeed = 30;
 var stars = [],
   FPS = 60,
-  x = !isMobile() ? 150 : 65, // quantity of stars
+  x = !isMobile() ? 150 : 30, // quantity of stars
   mouse = {
     x: 0,
     y: 0,
