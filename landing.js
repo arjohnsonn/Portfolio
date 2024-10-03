@@ -4,9 +4,10 @@ var canvas = document.getElementById("canvas"),
   ctx = canvas.getContext("2d");
 
 const starSpeed = 30;
+document.getElementById("greet-text").textContent = isMobile();
 var stars = [],
   FPS = 60,
-  x = !isMobile() ? 150 : 5, // quantity of stars
+  x = !isMobile() ? 150 : 65, // quantity of stars
   mouse = {
     x: 0,
     y: 0,
