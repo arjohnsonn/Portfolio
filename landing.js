@@ -44,11 +44,15 @@ function updateText() {
     /*canvas.style =
       "position: absolute; z-index: -1; display: none; visibility: hidden;";*/
     canvas.style.pointerEvents = "none";
+    canvas.style = "position: absolute; z-index: -1;";
+    canvas.style.width = window.innerWidth + "px";
+    canvas.style.height = window.innerHeight + "px";
 
     document.body.style.setProperty("--dot-size", "1.5px");
   } else {
     typewriterText.style.fontSize = "2vw";
     greetText.style.fontSize = "3em";
+    canvas.style.pointerEvents = "initial";
     canvas.style = "position: absolute; z-index: -1;";
     canvas.style.width = window.innerWidth + "px";
     canvas.style.height = window.innerHeight + "px";
