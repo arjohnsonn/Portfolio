@@ -6,7 +6,7 @@ var canvas = document.getElementById("canvas"),
 const starSpeed = 30;
 var stars = [],
   FPS = 60,
-  x = 150, // quantity of stars
+  x = !isMobile() ? 150 : 65, // quantity of stars
   mouse = {
     x: 0,
     y: 0,
@@ -103,20 +103,24 @@ function draw() {
   ctx.stroke();
 
   // create vignette effect around mouse
-  var gradient = ctx.createRadialGradient(
-    mouse.x / 2,
-    mouse.y / 2,
-    50,
-    mouse.x / 2,
-    mouse.y / 2,
-    350
-  );
-  gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
-  gradient.addColorStop(1, `rgba(0, 0, 0, ${!isMobile ? 1 : 0})`);
+  if (!isMobile()) {
+    var gradient = ctx.createRadialGradient(
+      mouse.x / 2,
+      mouse.y / 2,
+      50,
+      mouse.x / 2,
+      mouse.y / 2,
+      350
+    );
+    gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
+    gradient.addColorStop(1, `rgba(0, 0, 0, 1)`);
 
-  ctx.globalCompositeOperation = "destination-out";
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, canvas.width / 2, canvas.height / 2);
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width / 2, canvas.height / 2);
+  } else {
+    canvas.style.opacity = 0.3;
+  }
 }
 
 function distance(point1, point2) {
@@ -145,7 +149,8 @@ function update() {
 }
 
 document.body.addEventListener("mousemove", function (e) {
-  if (isMobile) return;
+  console.log(isMobile());
+  if (isMobile()) return;
 
   mouse.x = e.clientX * 2;
   mouse.y = e.clientY * 2;
