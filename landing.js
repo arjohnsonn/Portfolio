@@ -41,8 +41,9 @@ function updateText() {
   if (isMobile() == true) {
     typewriterText.style.fontSize = "3.5vw";
     greetText.style.fontSize = "2.5em";
-    canvas.style =
-      "position: absolute; z-index: -1; display: none; visibility: hidden;";
+    /*canvas.style =
+      "position: absolute; z-index: -1; display: none; visibility: hidden;";*/
+    canvas.style.pointerEvents = "none";
 
     document.body.style.setProperty("--dot-size", "1.5px");
   } else {
