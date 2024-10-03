@@ -43,7 +43,6 @@ function updateText() {
     greetText.style.fontSize = "2.5em";
     /*canvas.style =
       "position: absolute; z-index: -1; display: none; visibility: hidden;";*/
-    canvas.style.pointerEvents = "none";
     canvas.style = "position: absolute; z-index: -1;";
     canvas.style.width = window.innerWidth + "px";
     canvas.style.height = window.innerHeight + "px";
@@ -52,7 +51,6 @@ function updateText() {
   } else {
     typewriterText.style.fontSize = "2vw";
     greetText.style.fontSize = "3em";
-    canvas.style.pointerEvents = "initial";
     canvas.style = "position: absolute; z-index: -1;";
     canvas.style.width = window.innerWidth + "px";
     canvas.style.height = window.innerHeight + "px";
@@ -114,7 +112,7 @@ function draw() {
     350
   );
   gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
-  gradient.addColorStop(1, "rgba(0, 0, 0, 1)");
+  gradient.addColorStop(1, $`rgba(0, 0, 0, ${!isMobile ? 1 : 0})`);
 
   ctx.globalCompositeOperation = "destination-out";
   ctx.fillStyle = gradient;
@@ -147,6 +145,8 @@ function update() {
 }
 
 document.body.addEventListener("mousemove", function (e) {
+  if (isMobile) return;
+
   mouse.x = e.clientX * 2;
   mouse.y = e.clientY * 2;
 });
