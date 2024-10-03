@@ -6,11 +6,10 @@ var observer = new IntersectionObserver(
       var el = entry.target;
       if (entry.isIntersecting) {
         el.classList.add("animate");
-        return;
       }
     });
   },
-  { threshold: 0.2 }
+  { threshold: 0.1 }
 );
 
 document.querySelectorAll(".animation").forEach(function (i) {
