@@ -19,7 +19,7 @@ document.querySelectorAll(".animation").forEach(function (i) {
   }
 });
 
-function updateColumns() {
+/*function updateColumns() {
   // handle landing page text resizing
   if (isMobile()) {
     document.getElementById("column-break").style = "";
@@ -32,7 +32,7 @@ updateColumns();
 
 addEventListener("resize", () => {
   updateColumns();
-});
+});*/
 
 //
 

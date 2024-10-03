@@ -35,7 +35,6 @@ function initCanvas() {
 
 const greetText = document.getElementById("greet-text");
 const typewriterText = document.getElementById("typewriter-text");
-const aboutMeCols = document.getElementById("about-me-cols");
 
 function updateText() {
   // handle landing page text resizing
@@ -46,9 +45,6 @@ function updateText() {
       "position: absolute; z-index: -1; display: none; visibility: hidden;";
 
     document.body.style.setProperty("--dot-size", "1.5px");
-
-    aboutMeCols.classList.remove("gx-5");
-    aboutMeCols.classList.add("row-cols-2");
   } else {
     typewriterText.style.fontSize = "2vw";
     greetText.style.fontSize = "3em";
@@ -57,8 +53,6 @@ function updateText() {
     canvas.style.height = window.innerHeight + "px";
 
     document.body.style.setProperty("--dot-size", "1px");
-    aboutMeCols.classList.add("gx-5");
-    aboutMeCols.classList.remove("row-cols-2");
   }
 }
 
