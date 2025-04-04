@@ -32,7 +32,7 @@ export default function Home() {
 
         <FadeContent blur={true} duration={1000} delay={500}>
           <div className="typewriter">
-            <p className="typewriter-text font-light text-sm md:text-2xl">
+            <p className="typewriter-text font-light text-xs md:text-2xl">
               A developer, game creator, and CS student @{" "}
               <span className="text-amber-700 font-bold">UT Austin 🤘</span>
             </p>
