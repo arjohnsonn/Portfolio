@@ -107,10 +107,10 @@ const CanvasBG: React.FC = () => {
           50,
           mouse.x / 2,
           mouse.y / 2,
-          350
+          500
         );
         gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
-        gradient.addColorStop(1, "rgba(0, 0, 0, 1)");
+        gradient.addColorStop(1, "rgba(0, 0, 0, .6)");
         ctx.globalCompositeOperation = "destination-out";
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width / 2, canvas.height / 2);
@@ -164,7 +164,7 @@ const CanvasBG: React.FC = () => {
     };
     document.body.addEventListener("mousemove", handleMouseMove);
     // Handle fade-in/out of canvas based on scroll position
-    const handleWheel = () => {
+    const handleWheel = (customPercent?: number) => {
       const element = document.getElementById("landing");
       if (!element) return;
 
@@ -174,10 +174,9 @@ const CanvasBG: React.FC = () => {
       const visibleHeight =
         Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0);
       const visiblePercentage = (visibleHeight / element.offsetHeight) * 100;
-      const percent = Math.max(
-        0,
-        Math.min(50, Math.round(visiblePercentage * 100) / 100)
-      );
+      const percent =
+        customPercent ||
+        Math.max(0, Math.min(50, Math.round(visiblePercentage * 100) / 100));
 
       if (percent > 25) {
         canvas.classList.add("fade-in");
@@ -187,13 +186,17 @@ const CanvasBG: React.FC = () => {
         canvas.classList.remove("fade-in");
       }
     };
-    window.addEventListener("wheel", handleWheel);
+    window.addEventListener("wheel", () => handleWheel());
+
+    // Fixes issue with a flicker when scrolling down for the first time
+    handleWheel(50);
+    handleWheel(0);
 
     // Cleanup listeners and animation on component unmount
     return () => {
       window.removeEventListener("resize", handleResize);
       document.body.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("wheel", () => handleWheel());
       cancelAnimationFrame(animationFrameId);
     };
   }, []);

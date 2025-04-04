@@ -78,14 +78,6 @@ body {
     var(--dot-color);
 }
 
-.gradient-title {
-  background: #ffffff;
-  background: linear-gradient(to bottom right, #ffffff 0%, #797979 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
 canvas {
   background-color: transparent;
   opacity: 0.5;

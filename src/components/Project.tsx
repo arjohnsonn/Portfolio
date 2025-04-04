@@ -1,6 +1,6 @@
 import React from "react";
 import { badges } from "../lib/skills";
-import { Github } from "lucide-react";
+import { Github, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 type Props = {
@@ -9,16 +9,22 @@ type Props = {
   image: string;
   skills?: string[];
   github?: string;
-  deferGithub?: boolean;
+  deferButtons?: boolean;
+  redirect?: string;
 };
 
 const Project = (props: Props) => {
   return (
     <div className="relative bg-neutral-800/70 rounded-2xl w-[90vw] md:w-[25vw] h-auto flex flex-col py-3 items-center">
-      <div className="absolute right-5 top-5">
-        {props.github && !props.deferGithub && (
+      <div className="absolute flex right-5 gap-x-2 top-5">
+        {props.github && !props.deferButtons && (
           <Link href={props.github}>
-            <Github className="text-slate-400 hover:text-white" />
+            <Github className="text-slate-400 hover:text-white transition-colors duration-300 hover:scale-105 " />
+          </Link>
+        )}
+        {props.redirect && !props.deferButtons && (
+          <Link href={props.redirect}>
+            <ExternalLink className="text-slate hover:text-slate-400 transition-colors duration-300 hover:scale-105" />
           </Link>
         )}
       </div>
@@ -35,11 +41,19 @@ const Project = (props: Props) => {
             key={skill}
             src={badges[skill as keyof typeof badges]}
             alt={`${skill}`}
+            className="hover:scale-105 transition-transform duration-300"
           />
         )) ?? []}
-        {props.github && props.deferGithub && (
+      </div>
+      <div className="flex flex-row gap-x-2 pt-2">
+        {props.github && props.deferButtons && (
           <Link href={props.github}>
-            <Github className="text-slate-400 hover:text-white" />
+            <Github className="text-slate-400 hover:text-white transition-colors duration-300 hover:scale-105" />
+          </Link>
+        )}
+        {props.redirect && props.deferButtons && (
+          <Link href={props.redirect}>
+            <ExternalLink className="text-slate hover:text-white transition-colors duration-300 hover:scale-105" />
           </Link>
         )}
       </div>
