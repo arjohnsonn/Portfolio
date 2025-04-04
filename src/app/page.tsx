@@ -15,7 +15,7 @@ export default function Home() {
         <Canvas />
       </div>
       <div className="w-full h-screen flex flex-col items-center justify-center">
-        <h1 className="text-white font-md text-5xl md:text-6xl">
+        <h1 id="landing" className="text-white font-md text-5xl md:text-6xl">
           Hi, I&apos;m <span className="text-[#F96868] font-bold">Aiden</span>
         </h1>
         <div className="typewriter">

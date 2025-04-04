@@ -242,13 +242,13 @@ canvas {
     opacity: 0;
   }
   to {
-    opacity: 1;
+    opacity: 0.5;
   }
 }
 
 @keyframes fadeOut {
   from {
-    opacity: 1;
+    opacity: 0.5;
   }
   to {
     opacity: 0;

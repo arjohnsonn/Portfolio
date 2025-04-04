@@ -163,11 +163,37 @@ const CanvasBG: React.FC = () => {
       mouse.y = e.clientY * 2;
     };
     document.body.addEventListener("mousemove", handleMouseMove);
+    // Handle fade-in/out of canvas based on scroll position
+    const handleWheel = () => {
+      const element = document.getElementById("landing");
+      if (!element) return;
+
+      const rect = element.getBoundingClientRect();
+      const windowHeight =
+        window.innerHeight || document.documentElement.clientHeight;
+      const visibleHeight =
+        Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0);
+      const visiblePercentage = (visibleHeight / element.offsetHeight) * 100;
+      const percent = Math.max(
+        0,
+        Math.min(50, Math.round(visiblePercentage * 100) / 100)
+      );
+
+      if (percent > 25) {
+        canvas.classList.add("fade-in");
+        canvas.classList.remove("fade-out");
+      } else {
+        canvas.classList.add("fade-out");
+        canvas.classList.remove("fade-in");
+      }
+    };
+    window.addEventListener("wheel", handleWheel);
 
     // Cleanup listeners and animation on component unmount
     return () => {
       window.removeEventListener("resize", handleResize);
       document.body.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("wheel", handleWheel);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
