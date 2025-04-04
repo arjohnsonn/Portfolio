@@ -17,6 +17,9 @@ export const metadata = {
     ],
   },
   themeColor: "#F54242",
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default function RootLayout({
