@@ -12,13 +12,37 @@ interface Star {
   vy: number;
 }
 
+// Export an external function that handles scroll (renamed from handleWheel)
+export function handleScroll(customPercent?: number) {
+  const element = document.getElementById("landing");
+  const canvas = document.getElementById("canvas");
+  if (!element || !canvas) return;
+
+  const rect = element.getBoundingClientRect();
+  const windowHeight =
+    window.innerHeight || document.documentElement.clientHeight;
+  const visibleHeight =
+    Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0);
+  const visiblePercentage = (visibleHeight / element.offsetHeight) * 100;
+  const percent =
+    customPercent ||
+    Math.max(0, Math.min(50, Math.round(visiblePercentage * 100) / 100));
+
+  if (percent > 25) {
+    canvas.classList.add("fade-in");
+    canvas.classList.remove("fade-out");
+  } else {
+    canvas.classList.add("fade-out");
+    canvas.classList.remove("fade-in");
+  }
+}
+
 const CanvasBG: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -28,11 +52,8 @@ const CanvasBG: React.FC = () => {
     const numStars = !isMobile() ? 150 : 65;
     const mouse = { x: 0, y: 0 };
 
-    // Initialize canvas dimensions and create stars
     function initCanvas() {
-      if (!canvas) return;
-      if (!ctx) return;
-
+      if (!canvas || !ctx) return;
       canvas.width = window.innerWidth * 2;
       canvas.height = window.innerHeight * 2;
       canvas.style.width = window.innerWidth + "px";
@@ -51,7 +72,6 @@ const CanvasBG: React.FC = () => {
       }
     }
 
-    // Helper function to calculate distance between two points
     function distance(
       point1: { x: number; y: number },
       point2: { x: number; y: number }
@@ -61,11 +81,8 @@ const CanvasBG: React.FC = () => {
       return Math.sqrt(dx * dx + dy * dy);
     }
 
-    // Draw stars and connecting lines, then apply a vignette effect
     function draw() {
-      if (!canvas) return;
-      if (!ctx) return;
-
+      if (!canvas || !ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Draw stars
@@ -76,7 +93,7 @@ const CanvasBG: React.FC = () => {
         ctx.beginPath();
         ctx.arc(s.x / 2, s.y / 2, s.radius, 0, 2 * Math.PI);
         ctx.fill();
-        ctx.fillStyle = "black";
+        ctx.strokeStyle = "black";
         ctx.stroke();
       }
 
@@ -119,11 +136,8 @@ const CanvasBG: React.FC = () => {
       }
     }
 
-    // Update star positions and reverse their direction if they hit canvas boundaries
     function update() {
-      if (!canvas) return;
-      if (!ctx) return;
-
+      if (!canvas || !ctx) return;
       for (let i = 0; i < stars.length; i++) {
         const s = stars[i];
         s.x += s.vx / FPS;
@@ -141,11 +155,9 @@ const CanvasBG: React.FC = () => {
       animationFrameId = requestAnimationFrame(tick);
     }
 
-    // Initialize canvas and text, then start animation
     initCanvas();
     tick();
 
-    // Debounce canvas re-initialization on window resize
     let resizeTimeout: number;
     const handleResize = () => {
       clearTimeout(resizeTimeout);
@@ -156,47 +168,24 @@ const CanvasBG: React.FC = () => {
 
     window.addEventListener("resize", handleResize);
 
-    // Update mouse coordinates for non-mobile devices
     const handleMouseMove = (e: MouseEvent) => {
       if (isMobile()) return;
       mouse.x = e.clientX * 2;
       mouse.y = e.clientY * 2;
     };
     document.body.addEventListener("mousemove", handleMouseMove);
-    // Handle fade-in/out of canvas based on scroll position
-    const handleWheel = (customPercent?: number) => {
-      const element = document.getElementById("landing");
-      if (!element) return;
 
-      const rect = element.getBoundingClientRect();
-      const windowHeight =
-        window.innerHeight || document.documentElement.clientHeight;
-      const visibleHeight =
-        Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0);
-      const visiblePercentage = (visibleHeight / element.offsetHeight) * 100;
-      const percent =
-        customPercent ||
-        Math.max(0, Math.min(50, Math.round(visiblePercentage * 100) / 100));
+    // Use the exported handleScroll within the component
+    window.addEventListener("wheel", () => handleScroll());
 
-      if (percent > 25) {
-        canvas.classList.add("fade-in");
-        canvas.classList.remove("fade-out");
-      } else {
-        canvas.classList.add("fade-out");
-        canvas.classList.remove("fade-in");
-      }
-    };
-    window.addEventListener("wheel", () => handleWheel());
+    // Fix flicker on initial scroll
+    handleScroll(50);
+    handleScroll(0);
 
-    // Fixes issue with a flicker when scrolling down for the first time
-    handleWheel(50);
-    handleWheel(0);
-
-    // Cleanup listeners and animation on component unmount
     return () => {
       window.removeEventListener("resize", handleResize);
       document.body.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("wheel", () => handleWheel());
+      window.removeEventListener("wheel", () => handleScroll());
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
@@ -204,4 +193,4 @@ const CanvasBG: React.FC = () => {
   return <canvas ref={canvasRef} id="canvas" className="fixed -z-10 " />;
 };
 
-export default CanvasBG;
+export { CanvasBG };

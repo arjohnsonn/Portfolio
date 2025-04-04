@@ -1,6 +1,6 @@
 "use client";
 
-import Canvas from "../components/Canvas";
+import { CanvasBG, handleScroll } from "../components/Canvas";
 import Title from "../components/Title";
 import Experience from "../components/Experience";
 import Project from "../components/Project";
@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <div className="text-white">
       <div className="hidden md:block">
-        <Canvas />
+        <CanvasBG />
       </div>
       <div
         id="landing"
@@ -180,7 +180,12 @@ export default function Home() {
               Looks like you made it to the end, thanks for scrolling through!
             </p>
             <br />
-            <Link href="/">
+            <Link
+              href="/"
+              onClick={(e) => {
+                handleScroll(50);
+              }}
+            >
               <MoveUp className="bouncing size-12 text-blue-500 hover:bg-gray-700 rounded-full p-2 transition-colors duration-300" />
             </Link>
           </div>
