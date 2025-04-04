@@ -5,10 +5,10 @@ import { Analytics } from "@vercel/analytics/react";
 
 export const metadata = {
   title: "Aiden Johnson",
-  description: "A developer from Prosper, TX",
+  description: "A developer, game creator, and CS student @ UT Austin 🤘",
   openGraph: {
     title: "Aiden Johnson",
-    description: "A developer from Prosper, TX",
+    description: "A developer, game creator, and CS student @ UT Austin 🤘",
     url: "https://aidenjohnson.dev",
     images: [
       {
