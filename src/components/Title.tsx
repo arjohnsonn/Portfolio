@@ -9,6 +9,7 @@ type Props = {
 const Title = (props: Props) => {
   return (
     <div className="w-full flex flex-col items-center justify-center">
+      <div id={props.text.toLowerCase()} />
       <BlurText
         text={props.text}
         animateBy="words"
