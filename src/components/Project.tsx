@@ -14,7 +14,6 @@ type Props = {
 
 const Project = (props: Props) => {
   return (
-    // Add "relative" here so that the absolute element is positioned relative to this container.
     <div className="relative bg-neutral-800/70 rounded-2xl w-[90vw] md:w-[25vw] h-auto flex flex-col py-3 items-center">
       <div className="absolute right-5 top-5">
         {props.github && !props.deferGithub && (

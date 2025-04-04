@@ -59,13 +59,13 @@ export default function Home() {
         <Project
           title="Roblox Game"
           description="Played by hundreds of thousands of players & recognized as one of the most realistic Roblox roleplay games with over 250,000 hours of playtime. Programmed with Luau, Roblox's version of Lua, on both frontend and backend. We are in the 99th percentile on the platform for average session time."
-          image="/images/Image1.png"
+          image="/Images/Image1.png"
           skills={["Roblox", "lua", "Luau"]}
         />
         <Project
           title="Help Me Bevo"
           description="A chrome extension to display the infamous 3rd down Bevo animation every time you submit an assignment on Canvas. This extension has thousands of active users a week and nearly over a thousand downloads!"
-          image="/images/HMB1.png"
+          image="/Images/HMB1.png"
           github="https://github.com/Longhorn-Developers/Help-Me-Bevo"
           skills={[
             "TypeScript",
@@ -79,7 +79,7 @@ export default function Home() {
         <Project
           title="Dogifier"
           description="A website & extension that uses AI to add dogs to user-inputed images."
-          image="/images/Dogifier.png"
+          image="/Images/Dogifier.png"
           github="https://github.com/arjohnsonn/dogifier-web"
           skills={[
             "TypeScript",
@@ -94,7 +94,7 @@ export default function Home() {
         <Project
           title="Wordle Remake"
           description="A simple Wordle remake in React Native. This was my first React Native project!"
-          image="/images/WordleRN.png"
+          image="/Images/WordleRN.png"
           github="https://github.com/arjohnsonn/wordle-react-native"
           skills={[
             "TypeScript",
@@ -108,7 +108,7 @@ export default function Home() {
         <Project
           title="Canvas Quiz Strikethrough"
           description="A chrome extension that allows you to strikethrough quizzes on Canvas."
-          image="/images/CQS.png"
+          image="/Images/CQS.png"
           github="https://github.com/arjohnsonn/canvas-quiz-strikethrough"
           deferGithub={true}
           skills={["JavaScript", "HTML5", "CSS3"]}

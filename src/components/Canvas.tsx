@@ -51,33 +51,6 @@ const CanvasBG: React.FC = () => {
       }
     }
 
-    // Adjust text sizes and canvas style based on device type
-    function updateText() {
-      if (!canvas) return;
-      if (!ctx) return;
-
-      const greetText = document.getElementById("greet-text");
-      const typewriterText = document.getElementById("typewriter-text");
-
-      if (isMobile()) {
-        if (typewriterText) typewriterText.style.fontSize = "3.5vw";
-        if (greetText) greetText.style.fontSize = "2.5em";
-        canvas.style.position = "absolute";
-        canvas.style.zIndex = "-1";
-        canvas.style.width = window.innerWidth + "px";
-        canvas.style.height = window.innerHeight + "px";
-        document.body.style.setProperty("--dot-size", "1.5px");
-      } else {
-        if (typewriterText) typewriterText.style.fontSize = "2vw";
-        if (greetText) greetText.style.fontSize = "3em";
-        canvas.style.position = "absolute";
-        canvas.style.zIndex = "-1";
-        canvas.style.width = window.innerWidth + "px";
-        canvas.style.height = window.innerHeight + "px";
-        document.body.style.setProperty("--dot-size", "1px");
-      }
-    }
-
     // Helper function to calculate distance between two points
     function distance(
       point1: { x: number; y: number },
@@ -170,7 +143,6 @@ const CanvasBG: React.FC = () => {
 
     // Initialize canvas and text, then start animation
     initCanvas();
-    updateText();
     tick();
 
     // Debounce canvas re-initialization on window resize
@@ -179,7 +151,6 @@ const CanvasBG: React.FC = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = window.setTimeout(() => {
         initCanvas();
-        updateText();
       }, 100);
     };
 
@@ -193,35 +164,18 @@ const CanvasBG: React.FC = () => {
     };
     document.body.addEventListener("mousemove", handleMouseMove);
 
-    // Handle fade-in/out of canvas based on scroll position
-    const handleWheel = () => {
-      const element = document.getElementById("greet-text");
-      if (!element) return;
-
-      const rect = element.getBoundingClientRect();
-      const windowHeight =
-        window.innerHeight || document.documentElement.clientHeight;
-      const visibleHeight =
-        Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0);
-      const visiblePercentage = (visibleHeight / element.offsetHeight) * 100;
-      const percent = Math.max(
-        0,
-        Math.min(50, Math.round(visiblePercentage * 100) / 100)
-      );
-    };
-    window.addEventListener("wheel", handleWheel);
-
     // Cleanup listeners and animation on component unmount
     return () => {
       window.removeEventListener("resize", handleResize);
       document.body.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("wheel", handleWheel);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
-  return (
-    <canvas ref={canvasRef} id="canvas" className="scroll-fade fixed -z-10" />
+  return !isMobile ? (
+    <canvas ref={canvasRef} id="canvas" className="fixed -z-10" />
+  ) : (
+    <div />
   );
 };
 
