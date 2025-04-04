@@ -1,0 +1,51 @@
+import React from "react";
+import { badges } from "../lib/skills";
+import { Github } from "lucide-react";
+import Link from "next/link";
+
+type Props = {
+  title: string;
+  description: string;
+  image: string;
+  skills?: string[];
+  github?: string;
+  deferGithub?: boolean;
+};
+
+const Project = (props: Props) => {
+  return (
+    // Add "relative" here so that the absolute element is positioned relative to this container.
+    <div className="relative bg-neutral-800/70 rounded-2xl w-[90vw] md:w-[25vw] h-auto flex flex-col py-3 items-center">
+      <div className="absolute right-5 top-5">
+        {props.github && !props.deferGithub && (
+          <Link href={props.github}>
+            <Github className="text-slate-400 hover:text-white" />
+          </Link>
+        )}
+      </div>
+      <h1 className="font-bold text-2xl text-center">{props.title}</h1>
+      <div className="px-4 pt-4">
+        <div className="w-full transform transition duration-300 hover:scale-102">
+          <img src={props.image} className="w-full rounded-xl" />
+        </div>
+        <p className="font-md text-center text-sm pt-4">{props.description}</p>
+      </div>
+      <div className="flex pt-2 flex-wrap gap-1.5 px-2 justify-center items-center">
+        {props.skills?.map((skill) => (
+          <img
+            key={skill}
+            src={badges[skill as keyof typeof badges]}
+            alt={`${skill}`}
+          />
+        )) ?? []}
+        {props.github && props.deferGithub && (
+          <Link href={props.github}>
+            <Github className="text-slate-400 hover:text-white" />
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Project;
