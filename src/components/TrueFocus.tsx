@@ -65,11 +65,12 @@ const TrueFocus: React.FC<TrueFocusProps> = ({
     const parentRect = containerRef.current.getBoundingClientRect();
     const activeRect = wordRefs.current[currentIndex]!.getBoundingClientRect();
 
+    const MODIFIER = 25;
     setFocusRect({
       x: activeRect.left - parentRect.left,
-      y: activeRect.top - parentRect.top + 5,
+      y: activeRect.top - parentRect.top + MODIFIER / 2,
       width: activeRect.width,
-      height: activeRect.height - 10,
+      height: activeRect.height - MODIFIER,
     });
   }, [currentIndex, words.length]);
 
