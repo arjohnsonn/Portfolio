@@ -1,13 +1,14 @@
 import Navbar from "@/components/navbar";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata = {
   title: "Aiden Johnson",
-  description: "A developer & aspiring software engineer from Prosper, TX",
+  description: "A developer from Prosper, TX",
   openGraph: {
     title: "Aiden Johnson",
-    description: "A developer & aspiring software engineer from Prosper, TX",
+    description: "A developer from Prosper, TX",
     url: "https://aidenjohnson.dev",
     images: [
       {
@@ -30,6 +31,7 @@ export default function RootLayout({
         <TooltipProvider>
           <Navbar />
         </TooltipProvider>
+        <Analytics />
       </body>
     </html>
   );
