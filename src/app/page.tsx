@@ -18,7 +18,7 @@ export default function Home() {
       </div>
       <div
         id="landing"
-        className="w-full h-screen flex flex-col items-center justify-center"
+        className="w-full h-[90vh] md:h-screen flex flex-col items-center justify-center"
       >
         <TrueFocus
           sentence="Hi, I'm Aiden"
