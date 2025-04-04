@@ -29,28 +29,15 @@ export default function Home() {
           borderColor="#F96868"
           defaultFocus={2}
         />
-        {/* <div className="flex flex-row gap-x-4">
-          <BlurText
-            text="Hi, I'm"
-            animateBy="entire"
-            direction="bottom"
-            className="text-white font-md text-5xl md:text-6xl"
-          />
-          <BlurText
-            text="Aiden"
-            animateBy="words"
-            direction="bottom"
-            className="text-[#F96868] font-bold text-5xl md:text-6xl"
-          />
-        </div> */}
-        {/* <h1 className="text-white font-md text-5xl md:text-6xl">
-          Hi, I&apos;m <span className="text-[#F96868] font-bold">Aiden</span>
-        </h1> */}
-        <div className="typewriter">
-          <p className="typewriter-text font-light text-sm md:text-2xl">
-            I&apos;m a student, programmer, and game developer
-          </p>
-        </div>
+
+        <FadeContent blur={true} duration={1000} delay={500}>
+          <div className="typewriter">
+            <p className="typewriter-text font-light text-sm md:text-2xl">
+              A developer, game creator, and CS student @{" "}
+              <span className="text-amber-700 font-bold">UT Austin 🤘</span>
+            </p>
+          </div>
+        </FadeContent>
       </div>
 
       <Title text="Experience" />
