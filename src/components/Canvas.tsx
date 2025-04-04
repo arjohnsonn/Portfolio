@@ -172,11 +172,7 @@ const CanvasBG: React.FC = () => {
     };
   }, []);
 
-  return !isMobile ? (
-    <canvas ref={canvasRef} id="canvas" className="fixed -z-10" />
-  ) : (
-    <div />
-  );
+  return <canvas ref={canvasRef} id="canvas" className="fixed -z-10 " />;
 };
 
 export default CanvasBG;
