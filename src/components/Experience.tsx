@@ -9,7 +9,7 @@ type Props = {
 
 const Experience = (props: Props) => {
   return (
-    <div className="px-32 w-full">
+    <div className="px-14 md:px-32 w-full pt-4">
       <h1 className="font-bold text-2xl">
         <span className="text-[#F96868]">•</span> {props.title}
       </h1>

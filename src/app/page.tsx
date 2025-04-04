@@ -17,7 +17,7 @@ export default function Home() {
           Hi, I&apos;m <span className="text-[#F96868] font-bold">Aiden</span>
         </h1>
         <div className="typewriter">
-          <p className="typewriter-text font-light text-xl md:text-2xl">
+          <p className="typewriter-text font-light text-sm md:text-2xl">
             I&apos;m a student, programmer, and game developer
           </p>
         </div>
@@ -116,7 +116,7 @@ export default function Home() {
       </div>
       <Title text="Contact Me" top="pt-24" />
       <div className="w-full flex flex-col items-center justify-center pb-10 pt-2">
-        <p className="font-small text-lg">
+        <p className="font-small text-lg px-8 text-center">
           You can contact me by using the link buttons in the bottom navigation
           bar! You can also use my emails below to contact me:
         </p>
