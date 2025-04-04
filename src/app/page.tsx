@@ -14,11 +14,11 @@ export default function Home() {
       <Canvas />
       <div className="w-full h-screen flex flex-col items-center justify-center">
         <h1 className="text-white font-md text-5xl md:text-6xl">
-          Hi, I'm <span className="text-[#F96868] font-bold">Aiden</span>
+          Hi, I&apos;m <span className="text-[#F96868] font-bold">Aiden</span>
         </h1>
         <div className="typewriter">
           <p className="typewriter-text font-light text-xl md:text-2xl">
-            I'm a student, programmer, and game developer
+            I&apos;m a student, programmer, and game developer
           </p>
         </div>
       </div>

@@ -15,7 +15,10 @@ const Experience = (props: Props) => {
       </h1>
       <h1 className="text-md font-bold italic">
         {props.position}
-        <span className="font-light"> // {props.date}</span>
+        <span className="font-light">
+          {" "}
+          {"//"} {props.date}
+        </span>
       </h1>
       <div className="w-full pt-2 p-4 flex flex-col gap-y-2">
         {props.bullets.map((bullet, index) => (

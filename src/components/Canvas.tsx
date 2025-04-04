@@ -26,7 +26,7 @@ const CanvasBG: React.FC = () => {
     let stars: Star[] = [];
     const FPS = 60;
     const numStars = !isMobile() ? 150 : 65;
-    let mouse = { x: 0, y: 0 };
+    const mouse = { x: 0, y: 0 };
 
     // Initialize canvas dimensions and create stars
     function initCanvas() {
@@ -208,14 +208,6 @@ const CanvasBG: React.FC = () => {
         0,
         Math.min(50, Math.round(visiblePercentage * 100) / 100)
       );
-
-      if (percent > 0) {
-        canvas.classList.add("fade-in");
-        canvas.classList.remove("fade-out");
-      } else {
-        canvas.classList.add("fade-out");
-        canvas.classList.remove("fade-in");
-      }
     };
     window.addEventListener("wheel", handleWheel);
 
