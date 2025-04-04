@@ -115,7 +115,7 @@ export default function Home() {
         />
       </div>
       <Title text="Contact Me" top="pt-24" />
-      <div className="w-full flex flex-col items-center justify-center pb-20 pt-2">
+      <div className="w-full flex flex-col items-center justify-center pb-10 pt-2">
         <p className="font-small text-lg">
           You can contact me by using the link buttons in the bottom navigation
           bar! You can also use my emails below to contact me:
@@ -129,7 +129,7 @@ export default function Home() {
           </a>
         </div>
       </div>
-      <div className="pt-20 pb-20 flex w-full items-center justify-center">
+      <div className="pb-20 flex w-full items-center justify-center">
         <div className="flex flex-col items-center justify-center">
           <p className="inline text-xl text-center">
             Looks like you made it to the end, thanks for scrolling through!
