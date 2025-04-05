@@ -1,5 +1,3 @@
-import { NextResponse } from "next/server";
-
 const QUOTES = [
   "OU STILL SUCKS",
   "new semester new me",
@@ -8,14 +6,6 @@ const QUOTES = [
   "Hook 'em",
   "can we pet bevo",
 ];
-
-export async function OPTIONS() {
-  const headers = new Headers();
-  headers.set("Access-Control-Allow-Origin", "*");
-  headers.set("Access-Control-Allow-Methods", "GET,OPTIONS");
-  headers.set("Access-Control-Allow-Headers", "Content-Type");
-  return new NextResponse(null, { status: 200, headers });
-}
 
 export async function GET(request: Request) {
   // Get random string from quotes
