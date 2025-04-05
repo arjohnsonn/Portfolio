@@ -1,0 +1,8 @@
+{
+  "headers": [
+    {
+      "source": "/Hosts/(.*)",
+      "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }]
+    }
+  ]
+}
