@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         // matching all Hosts routes
-        source: "/Hosts/:path*",
+        source: "/Hosts/help-me-bevo-quotes.json",
         headers: [
           { key: "Access-Control-Allow-Credentials", value: "true" },
           { key: "Access-Control-Allow-Origin", value: "*" },
