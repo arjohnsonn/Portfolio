@@ -1,6 +1,6 @@
 const QUOTES = [
   "OU STILL SUCKS",
-  "new semester new me",
+  "GOOD LUCK ON EXAMS/FINALS",
   "does this help yalls grade",
   "what is an aggie😭",
   "Hook 'em",
