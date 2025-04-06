@@ -90,7 +90,7 @@ export default function Home() {
         <FadeContent blur={true} duration={1000} delay={800}>
           <Project
             title="Help Me Bevo"
-            description="A chrome extension to display the infamous 3rd down Bevo animation every time you submit an assignment on Canvas. This extension has thousands of active users a week and nearly over a thousand downloads!"
+            description="A chrome extension to display the infamous 3rd down Bevo animation every time you submit an assignment on Canvas. This extension has thousands of active users a week and over 2,000 downloads!"
             image="/Images/HMB1.png"
             github="https://github.com/Longhorn-Developers/Help-Me-Bevo"
             redirect="https://chromewebstore.google.com/detail/help-me-bevo/igepffgmogjaehnlpgepliimadegcapd?authuser=1&hl=en"
