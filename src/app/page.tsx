@@ -79,7 +79,7 @@ export default function Home() {
       </FadeContent>
       <Title text="Projects" top="pt-24" />
       <div className="flex flex-col md:flex-row md:flex-wrap gap-3 justify-center items-center md:items-start py-4">
-        <FadeContent blur={true} duration={1000} delay={700}>
+        <FadeContent blur={true} duration={1000} delay={600}>
           <Project
             title="Roblox Game"
             description="Played by hundreds of thousands of players & recognized as one of the most realistic Roblox roleplay games with over 250,000 hours of playtime. Programmed with Luau, Roblox's version of Lua, on both frontend and backend. We are in the 99th percentile on the platform for average session time."
@@ -87,7 +87,7 @@ export default function Home() {
             skills={["Roblox", "lua", "Luau"]}
           />
         </FadeContent>
-        <FadeContent blur={true} duration={1000} delay={800}>
+        <FadeContent blur={true} duration={1000} delay={700}>
           <Project
             title="Help Me Bevo"
             description="A chrome extension to display the infamous 3rd down Bevo animation every time you submit an assignment on Canvas. This extension has thousands of active users a week and over 2,000 downloads!"
@@ -104,7 +104,23 @@ export default function Home() {
             ]}
           />
         </FadeContent>
-        <FadeContent blur={true} duration={1000} delay={900}>
+        <FadeContent blur={true} duration={1000} delay={800}>
+          <Project
+            title="Ortex Alerts"
+            description="A Chrome extension that enhances Ortex's options flow to alert users when mass volume is purchased from market makers, hedge funds, and other big-money players."
+            image="/Images/OrtexAlerts.png"
+            github="https://github.com/arjohnsonn/ortex-alert"
+            skills={[
+              "TypeScript",
+              "HTML5",
+              "CSS3",
+              "React",
+              "Vite",
+              "TailwindCSS",
+            ]}
+          />
+        </FadeContent>
+        <FadeContent blur={true} duration={1000} delay={600}>
           <Project
             title="Dogifier"
             description="A website & extension that uses AI to add dogs to user-inputed images."
@@ -122,7 +138,7 @@ export default function Home() {
             ]}
           />
         </FadeContent>
-        <FadeContent blur={true} duration={1000} delay={600}>
+        <FadeContent blur={true} duration={1000} delay={700}>
           <Project
             title="Wordle Remake"
             description="A simple Wordle remake in React Native. This was my first React Native project!"
@@ -138,7 +154,7 @@ export default function Home() {
             ]}
           />
         </FadeContent>
-        <FadeContent blur={true} duration={1000} delay={700}>
+        <FadeContent blur={true} duration={1000} delay={800}>
           <Project
             title="Canvas Quiz Strikethrough"
             description="A chrome extension that allows you to strikethrough quizzes on Canvas."
