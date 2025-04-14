@@ -112,6 +112,7 @@ export default function Home() {
             github="https://github.com/arjohnsonn/ortex-alert"
             skills={[
               "TypeScript",
+              "JavaScript",
               "HTML5",
               "CSS3",
               "React",
