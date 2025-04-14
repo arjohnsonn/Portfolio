@@ -18,12 +18,12 @@ const Project = (props: Props) => {
     <div className="relative bg-neutral-800/70 rounded-2xl w-[90vw] md:w-[25vw] h-auto flex flex-col py-3 items-center">
       <div className="absolute flex right-5 gap-x-2 top-5">
         {props.github && !props.deferButtons && (
-          <Link href={props.github}>
+          <Link href={props.github} target="_blank">
             <Github className="text-slate-400 hover:text-white transition-colors duration-300 hover:scale-105 " />
           </Link>
         )}
         {props.redirect && !props.deferButtons && (
-          <Link href={props.redirect}>
+          <Link href={props.redirect} target="_blank">
             <ExternalLink className="text-slate hover:text-slate-400 transition-colors duration-300 hover:scale-105" />
           </Link>
         )}
@@ -47,12 +47,12 @@ const Project = (props: Props) => {
       </div>
       <div className="flex flex-row gap-x-2 pt-2">
         {props.github && props.deferButtons && (
-          <Link href={props.github}>
+          <Link href={props.github} target="_blank">
             <Github className="text-slate-400 hover:text-white transition-colors duration-300 hover:scale-105" />
           </Link>
         )}
         {props.redirect && props.deferButtons && (
-          <Link href={props.redirect}>
+          <Link href={props.redirect} target="_blank">
             <ExternalLink className="text-slate hover:text-white transition-colors duration-300 hover:scale-105" />
           </Link>
         )}
