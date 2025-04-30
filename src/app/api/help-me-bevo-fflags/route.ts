@@ -1,5 +1,5 @@
 const FFLAGS = {
-  "Wrapped": false
+  "Wrapped": true
 }
 
 export async function GET(request: Request) {
