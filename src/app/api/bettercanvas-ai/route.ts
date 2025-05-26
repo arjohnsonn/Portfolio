@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     if (!fileId) {
       const base64 = file_data.split(",")[1];
       const buffer = Buffer.from(base64, "base64");
-      // @ts-ignore: Buffer is acceptable at runtime
+
       const upload = await openai.files.create({
         file: buffer as unknown as any,
         purpose: "user_data",
