@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { OpenAI } from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const ASSISTANT_ID = process.env.ASSISTANT_ID!;
+const ASSISTANT_ID = process.env.OPENAI_ASSISTANT_ID!;
 
 /**
  * GET handler for simple text-only chat
