@@ -1,9 +1,6 @@
 import { OpenAI } from "openai";
-import { createHash } from "crypto";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-// In-memory cache: map SHA256(file_data) -> OpenAI file ID
-const fileCache = new Map<string, string>();
 
 /**
  * GET handler for text-only chat with conversation chaining
@@ -13,13 +10,13 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const prompt = searchParams.get("prompt") || "";
     const model = searchParams.get("model") || "gpt-4o";
-    const previousResponseId =
+    const previous_response_id =
       searchParams.get("previous_response_id") || undefined;
 
     const resp = await openai.responses.create({
       model,
       store: true,
-      previous_response_id: previousResponseId,
+      previous_response_id,
       input: [{ role: "user", content: prompt }],
     });
 
@@ -37,37 +34,46 @@ export async function GET(request: Request) {
 }
 
 /**
- * POST handler for file + text chat with caching and conversation chaining
+ * POST handler for file + text chat with conversation chaining
+ * Clients should send either `file_data`+`filename` (first turn) or `file_id` (subsequent turns)
  */
 export async function POST(request: Request) {
   try {
-    const { filename, file_data, question, model, previous_response_id } =
-      await request.json();
+    const body = await request.json();
+    const {
+      file_id,
+      filename,
+      file_data,
+      question,
+      model,
+      previous_response_id,
+    } = body;
     const visionModel = model || "gpt-4o";
 
-    // Compute hash of base64 data for deduplication
-    const hash = createHash("sha256").update(file_data).digest("hex");
-    let fileId = fileCache.get(hash);
-
-    if (!fileId) {
+    // Determine whether to upload or reuse
+    let fid = file_id;
+    if (!fid) {
+      if (!file_data || !filename) {
+        throw new Error("Missing file_data or filename for initial upload");
+      }
+      // file_data is data:<mime>;base64,<b64>
       const base64 = file_data.split(",")[1];
       const buffer = Buffer.from(base64, "base64");
+      // @ts-ignore allow Buffer
       const upload = await openai.files.create({
-        file: buffer as unknown as any,
+        file: buffer as any,
         purpose: "user_data",
       });
-      fileId = upload.id;
-      fileCache.set(hash, fileId);
+      fid = upload.id;
     }
 
-    // Build input content: include file_id only on first turn
+    // Build input blocks
     const contentBlocks: Array<any> = [];
+    // initial turn: attach file_id
     if (!previous_response_id) {
-      contentBlocks.push({
-        type: "input_file",
-        file_id: fileId,
-      });
+      contentBlocks.push({ type: "input_file", file_id: fid });
     }
+    // always attach the question text
     contentBlocks.push({ type: "input_text", text: question });
 
     const resp = await openai.responses.create({
@@ -83,7 +89,7 @@ export async function POST(request: Request) {
     });
 
     return new Response(
-      JSON.stringify({ text: resp.output_text, id: resp.id }),
+      JSON.stringify({ text: resp.output_text, id: resp.id, file_id: fid }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (err: any) {
