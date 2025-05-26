@@ -1,22 +1,26 @@
 import { OpenAI } from "openai";
+import { createHash } from "crypto";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// In-memory cache: map SHA256(file_data) -> OpenAI file ID
+const fileCache = new Map<string, string>();
 
 /**
- * GET handler for text-only chat with optional conversation chaining
+ * GET handler for text-only chat with conversation chaining
  */
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const prompt = searchParams.get("prompt") || "";
     const model = searchParams.get("model") || "gpt-4o";
-    const prevId = searchParams.get("previous_response_id") || undefined;
+    const previousResponseId =
+      searchParams.get("previous_response_id") || undefined;
 
-    // Use the Responses API to enable conversation state
+    // Use Responses API for chaining
     const resp = await openai.responses.create({
       model,
       store: true,
-      previous_response_id: prevId,
+      previous_response_id: previousResponseId,
       input: [{ role: "user", content: prompt }],
     });
 
@@ -34,7 +38,7 @@ export async function GET(request: Request) {
 }
 
 /**
- * POST handler for file + text chat with optional conversation chaining
+ * POST handler for file + text chat with caching and chaining
  */
 export async function POST(request: Request) {
   try {
@@ -42,11 +46,36 @@ export async function POST(request: Request) {
       await request.json();
     const visionModel = model || "gpt-4o";
 
-    // Build input array: on first turn include file, subsequent turns omit file
-    const fileInput = !previous_response_id
-      ? [{ type: "input_file" as const, filename, data: file_data }]
-      : [];
+    // Compute hash of the base64 data to dedupe
+    const hash = createHash("sha256").update(file_data).digest("hex");
+    let fileId = fileCache.get(hash);
 
+    // Upload once if not cached
+    if (!fileId) {
+      // file_data is "data:<mime>;base64,<b64>"
+      const base64 = file_data.split(",")[1];
+      const buffer = Buffer.from(base64, "base64");
+      // @ts-ignore: Buffer acceptable at runtime
+      const upload = await openai.files.create({
+        file: buffer as unknown as any,
+        purpose: "user_data",
+      });
+      fileId = upload.id;
+      fileCache.set(hash, fileId);
+    }
+
+    // Build input content: include file_id on first turn only
+    const contentBlocks: Array<any> = [];
+    if (!previous_response_id) {
+      contentBlocks.push({
+        type: "input_file",
+        filename,
+        file_data,
+      });
+    }
+    contentBlocks.push({ type: "input_text", text: question });
+
+    // Call Responses API
     const resp = await openai.responses.create({
       model: visionModel,
       store: true,
@@ -54,7 +83,7 @@ export async function POST(request: Request) {
       input: [
         {
           role: "user",
-          content: [...fileInput, { type: "input_text", text: question }],
+          content: contentBlocks,
         },
       ],
     });
