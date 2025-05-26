@@ -16,7 +16,6 @@ export async function GET(request: Request) {
     const previousResponseId =
       searchParams.get("previous_response_id") || undefined;
 
-    // Use Responses API for chaining
     const resp = await openai.responses.create({
       model,
       store: true,
@@ -38,7 +37,7 @@ export async function GET(request: Request) {
 }
 
 /**
- * POST handler for file + text chat with caching and chaining
+ * POST handler for file + text chat with caching and conversation chaining
  */
 export async function POST(request: Request) {
   try {
@@ -46,15 +45,15 @@ export async function POST(request: Request) {
       await request.json();
     const visionModel = model || "gpt-4o";
 
-    // Compute hash of the base64 data to dedupe
+    // Compute hash of base64 data for deduplication
     const hash = createHash("sha256").update(file_data).digest("hex");
     let fileId = fileCache.get(hash);
 
     // Upload once if not cached
     if (!fileId) {
-      // file_data is "data:<mime>;base64,<b64>"
       const base64 = file_data.split(",")[1];
       const buffer = Buffer.from(base64, "base64");
+      // @ts-ignore: Buffer is acceptable at runtime
       const upload = await openai.files.create({
         file: buffer as unknown as any,
         purpose: "user_data",
@@ -63,18 +62,16 @@ export async function POST(request: Request) {
       fileCache.set(hash, fileId);
     }
 
-    // Build input content: include file_id on first turn only
+    // Build input content: include file_id only on first turn
     const contentBlocks: Array<any> = [];
     if (!previous_response_id) {
       contentBlocks.push({
         type: "input_file",
-        filename,
-        file_data,
+        file_id: fileId,
       });
     }
     contentBlocks.push({ type: "input_text", text: question });
 
-    // Call Responses API
     const resp = await openai.responses.create({
       model: visionModel,
       store: true,
