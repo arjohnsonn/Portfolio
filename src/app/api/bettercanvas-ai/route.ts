@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const prompt = searchParams.get("prompt") || "";
-    const model = searchParams.get("model") || "gpt-4o";
+    const model = searchParams.get("model") || "gpt-4o-mini";
     const systemPrompt = searchParams.get("system_prompt") || "";
 
     const messages = [] as any;
