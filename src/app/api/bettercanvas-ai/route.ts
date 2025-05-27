@@ -43,6 +43,12 @@ export async function POST(request: Request) {
     const modelOverride = form.get("model")?.toString();
 
     let thread_id = threadId;
+    console.log("Received POST request:", {
+      threadId: thread_id,
+      question,
+      modelOverride,
+      hasFile: !!file,
+    });
 
     // Initial request: upload file, create thread, index file
     if (!thread_id) {
