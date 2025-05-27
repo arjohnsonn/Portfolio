@@ -19,23 +19,17 @@ export async function GET(request: Request) {
     });
 
     const text = completion.choices?.[0]?.message?.content || "";
-    return new NextResponse(JSON.stringify({ text }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json({ text });
   } catch (err: any) {
     console.error("OpenAI request failed:", err);
-    return new NextResponse(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
 /**
- * POST handler: upload a file, attach it to a Thread, and ask the assistant
+ * POST handler: upload a file once, then reuse thread for follow-up questions
  * Expects multipart/form-data:
- *   - file: File (your PDF, PNG, etc)
+ *   - file?: File (only on first call)
  *   - question: string
  *   - threadId?: string
  *   - model?: string
@@ -43,43 +37,49 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const form = await request.formData();
-    const file = form.get("file") as File;
+    const file = form.get("file") as File | null;
     const question = form.get("question")?.toString() || "";
-    const threadId = form.get("threadId")?.toString();
+    const threadId = form.get("threadId")?.toString() || null;
     const modelOverride = form.get("model")?.toString();
 
-    // 1) Upload the file to OpenAI
-    const upload = await openai.files.create({
-      file,
-      purpose: "assistants",
-    });
-
-    // 2) Create (or reuse) a Thread
     let thread_id = threadId;
+
+    // Initial request: upload file, create thread, index file
     if (!thread_id) {
-      const newThread = await openai.beta.threads.create();
-      thread_id = newThread.id;
+      if (!file) {
+        throw new Error("Missing file on initial upload");
+      }
+      const upload = await openai.files.create({
+        file,
+        purpose: "assistants",
+      });
+      const thread = await openai.beta.threads.create();
+      thread_id = thread.id;
+      await openai.beta.threads.messages.create(thread_id, {
+        role: "user",
+        content: question,
+        attachments: [
+          {
+            file_id: upload.id,
+            tools: [{ type: "file_search" }],
+          },
+        ],
+      });
+    } else {
+      // Follow-up: just append question
+      await openai.beta.threads.messages.create(thread_id, {
+        role: "user",
+        content: question,
+      });
     }
 
-    // 3) Post your question + the file as an attachment (for file_search)
-    await openai.beta.threads.messages.create(thread_id, {
-      role: "user",
-      content: question,
-      attachments: [
-        {
-          file_id: upload.id,
-          tools: [{ type: "file_search" }],
-        },
-      ],
-    });
-
-    // 4) Kick off a Run
+    // Kick off a run for the assistant
     const run = await openai.beta.threads.runs.create(thread_id, {
       assistant_id: ASSISTANT_ID,
       ...(modelOverride ? { model: modelOverride } : {}),
     });
 
-    // 5) Poll until the Run completes
+    // Poll until completion
     let status = run;
     while (["queued", "in_progress"].includes(status.status)) {
       await new Promise((r) => setTimeout(r, 500));
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
       throw new Error(`Run ended with status: ${status.status}`);
     }
 
-    // 6) Fetch the assistant’s reply from that run
+    // Retrieve the assistant's reply
     const msgs = await openai.beta.threads.messages.list(thread_id, {
       run_id: run.id,
       limit: 1,
@@ -101,15 +101,9 @@ export async function POST(request: Request) {
       .map((c) => (c.type === "text" ? c.text.value : ""))
       .join("");
 
-    return new NextResponse(JSON.stringify({ text, threadId: thread_id }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json({ text, threadId: thread_id });
   } catch (err: any) {
     console.error("POST handler error:", err);
-    return new NextResponse(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
