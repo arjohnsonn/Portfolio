@@ -91,8 +91,10 @@ export async function POST(request: Request) {
     });
     const reply = msgs.data[0];
     const raw = reply.content
-      .filter((c) => c.type === "text")
-      .map((c) => (c.type === "text" ? c.text.value : ""))
+      .filter((c: { type: string }) => c.type === "text")
+      .map((c: { type: string; text: { value: any } }) =>
+        c.type === "text" ? c.text.value : ""
+      )
       .join("");
     const text = raw;
 
