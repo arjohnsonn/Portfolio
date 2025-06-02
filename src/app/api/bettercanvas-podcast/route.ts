@@ -8,7 +8,7 @@ import textToSpeech from "@google-cloud/text-to-speech";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const client = new textToSpeech.TextToSpeechClient({
-  credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON || "{}"),
+  credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS || "{}"),
 });
 
 type DialogueLine = {
