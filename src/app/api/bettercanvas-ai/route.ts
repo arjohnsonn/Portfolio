@@ -1,13 +1,10 @@
-// app/api/bettercanvas-ai/route.ts
-
 import { NextResponse } from "next/server";
-import { constants } from "node:fs";
 import { OpenAI } from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
- * GET handler: simple text‐only chat via Responses API
+ * GET handler: text‐only chat via Responses API
  */
 export async function GET(request: Request) {
   try {
@@ -15,46 +12,45 @@ export async function GET(request: Request) {
     const prompt = searchParams.get("prompt") || "";
     const model = searchParams.get("model") || "gpt-4o-mini";
 
-    // Create a new Response via the Responses endpoint:
-    // - input can be a plain string when you just have text.
+    // Create a new Response via the Responses API, using a plain string for input
     const resp = await openai.responses.create({
       model,
-      input: prompt,
+      input: prompt, // plain string → simple chat
     });
 
-    // The Responses API returns an array of “output” items.
-    // We’ll assume the first (and only) output_text is what we want.
-    const outputItem = resp.output?.[0];
     let text = "";
+    const outputItem = resp.output?.[0];
+
     if (outputItem && outputItem.type === "message") {
-      // In the “message” case, content is an array of { type, text } objects.
+      // Combine all “output_text” segments inside the message
       text = outputItem.content
         .filter((c: any) => c.type === "output_text")
         .map((c: any) => c.text || "")
         .join("");
     }
 
-    // Return the generated text, plus the new response’s ID so the client can continue later.
+    // (No need for a `else if (type === "output_text")`—that cannot occur at the top level.)
+
     return NextResponse.json({
       text,
       responseId: resp.id,
     });
   } catch (err: any) {
-    console.error("GET /bettercanvas‐ai error:", err);
+    console.error("GET /bettercanvas-ai error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
 /**
- * POST handler: “file chat” via Responses API
+ * POST handler: “file chat” with Responses API
  *
- * On the first call, you must upload a file blob + question:
- *   • upload the file to OpenAI (purpose: “assistants”)
- *   • call openai.responses.create with input = [ { type: "file", file_id }, question ]
+ * - On the very first call (no previousResponseId), we:
+ *     1) upload the file (purpose: "assistants")
+ *     2) call `responses.create({ input: [ { type: "file_search_call", file_id }, { type: "message", role:"user", content: question } ] })`
  *
- * On follow‐ups, you pass `previousResponseId` to continue the same conversation:
- *   • input = question (string)
- *   • previous_response_id = previousResponseId
+ * - On follow-ups (previousResponseId != null), we:
+ *     1) send only the user message in input
+ *     2) set previous_response_id to the prior response’s ID
  */
 export async function POST(request: Request) {
   try {
@@ -65,34 +61,38 @@ export async function POST(request: Request) {
       form.get("previousResponseId")?.toString() || null;
     const model = form.get("model")?.toString() || "gpt-4o-mini";
 
-    const createArgs: any = { model };
+    let createArgs: any = { model };
 
     if (!previousResponseId) {
-      // INITIAL call: must have a File
+      // ─── INITIAL CALL: must include a File + question ───────────────────────
       if (!(maybeFile instanceof File)) {
         throw new Error("Missing or invalid file on initial POST");
       }
 
-      // 1) Upload to OpenAI
+      // 1) Upload the file to OpenAI with purpose "assistants"
       const upload = await openai.files.create({
         file: maybeFile,
         purpose: "assistants",
       });
 
-      // 2) Build “input” as an array: first the file, then the user’s question
-      createArgs.input = [{ type: "file", file_id: upload.id }, question];
+      // 2) Build input array: first a file_search_call, then the user’s message
+      createArgs.input = [
+        { type: "file_search_call", file_id: upload.id },
+        { type: "message", role: "user", content: question },
+      ];
     } else {
-      // FOLLOW‐UP: just pass the raw question string and link to previousResponseId
-      createArgs.input = question;
+      // ─── FOLLOW-UP: only a user message + previous_response_id ─────────────────
+      createArgs.input = [{ type: "message", role: "user", content: question }];
       createArgs.previous_response_id = previousResponseId;
     }
 
-    // 3) Call Responses.create()
+    // 3) Call the Responses API
     const resp = await openai.responses.create(createArgs);
 
-    // 4) Extract the assistant’s reply text (first output item)
-    const outputItem = resp.output?.[0];
+    // 4) Extract the assistant’s reply from resp.output[0]
     let text = "";
+    const outputItem = resp.output?.[0];
+
     if (outputItem && outputItem.type === "message") {
       text = outputItem.content
         .filter((c: any) => c.type === "output_text")
@@ -100,12 +100,13 @@ export async function POST(request: Request) {
         .join("");
     }
 
+    // 5) Return the text + the new responseId for the client to pass next time
     return NextResponse.json({
       text,
       responseId: resp.id,
     });
   } catch (err: any) {
-    console.error("POST /bettercanvas‐ai error:", err);
+    console.error("POST /bettercanvas-ai error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
