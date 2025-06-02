@@ -19,21 +19,23 @@ type DialogueLine = {
   text: string;
 };
 
-const PODCAST_SYSTEM_PROMPT = `You are a solo podcast host named Alex. Create an engaging monologue as if Alex is recording a podcast episode.
+const PODCAST_SYSTEM_PROMPT = `You are a solo podcast host. Create an engaging monologue as if you are recording a podcast episode.
 
 Guidelines:
-- Alex is energetic, casual, and shares personal insights (uses "lmaoo", "yo", "dude" etc.)
+- You are energetic and casual, like a friend chatting
 - Keep the tone conversational and natural
 - Include filler words, reactions, and casual language
 - Aim for a natural flow of thoughts
 - Stay on topic but allow minor tangents
 
-Return ONLY a JSON object in this exact format:
+Return ONLY a JSON object in this exact format, the example below does not have to be followed exactly but the structure must be the same:
 {
+  "topic": "The topic of the podcast episode",
   "dialogue": [
-    { "speaker": "Alex", "text": "Yo, welcome back to the pod! It's just me today, and we’re gonna talk about something cool." },
-    { "speaker": "Alex", "text": "Seriously, this is something I’ve been thinking about a lot lately." }
-  ]}`;
+    { "speaker": "AI", "text": "Welcome back to the podcast! It's just me today, and we’re gonna talk about something cool." },
+    { "speaker": "AI", "text": "Seriously, this is something I’ve been thinking about a lot lately." }
+  ]
+}`;
 
 function stripSSML(text: string): string {
   return text.replace(/<[^>]+>/g, "");
@@ -54,7 +56,7 @@ export async function POST(request: Request) {
           { role: "system", content: PODCAST_SYSTEM_PROMPT },
           {
             role: "user",
-            content: `Create a solo podcast episode about: ${body.topic}`,
+            content: `Create a solo podcast episode about the following content: ${body.topic}`,
           },
         ],
         temperature: 0.8,
@@ -67,6 +69,15 @@ export async function POST(request: Request) {
       } catch {
         return NextResponse.json(
           { error: "Failed to parse dialogue JSON from AI" },
+          { status: 500 }
+        );
+      }
+
+      try {
+        body.topic = JSON.parse(responseText).topic;
+      } catch {
+        return NextResponse.json(
+          { error: "Failed to parse topic JSON from AI" },
           { status: 500 }
         );
       }
