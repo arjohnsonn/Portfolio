@@ -19,6 +19,7 @@
 
 # production
 /build
+bettercanvaskey.json
 
 # misc
 .DS_Store
