@@ -5,22 +5,8 @@ import textToSpeech from "@google-cloud/text-to-speech";
 import { createClient } from "@supabase/supabase-js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-// Parse Google credentials safely
-let googleCredentials = {};
-try {
-  const credString = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-  if (credString && credString.trim()) {
-    googleCredentials = JSON.parse(credString);
-  }
-} catch (error) {
-  console.error("Failed to parse Google credentials:", error);
-  // Fall back to default service account discovery
-}
-
 const client = new textToSpeech.TextToSpeechClient({
-  credentials:
-    Object.keys(googleCredentials).length > 0 ? googleCredentials : undefined,
+  credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS || "{}"),
 });
 
 const supabase = createClient(
@@ -55,16 +41,7 @@ function stripSSML(text: string): string {
 
 export async function POST(request: Request) {
   try {
-    let body;
-    try {
-      body = await request.json();
-    } catch (jsonError) {
-      console.error("Failed to parse request body:", jsonError);
-      return NextResponse.json(
-        { error: "Invalid JSON in request body" },
-        { status: 400 }
-      );
-    }
+    const body = await request.json();
 
     if (body.topic) {
       const completion = await openai.chat.completions.create({
@@ -82,16 +59,10 @@ export async function POST(request: Request) {
       const responseText = completion.choices?.[0]?.message?.content ?? "";
 
       try {
-        const parsedResponse = JSON.parse(responseText);
-        body.dialogue = parsedResponse.dialogue;
-      } catch (parseError) {
-        console.error("Failed to parse AI response:", responseText);
-        console.error("Parse error:", parseError);
+        body.dialogue = JSON.parse(responseText).dialogue;
+      } catch {
         return NextResponse.json(
-          {
-            error: "Failed to parse dialogue JSON from AI",
-            details: responseText.substring(0, 200) + "...",
-          },
+          { error: "Failed to parse dialogue JSON from AI" },
           { status: 500 }
         );
       }
