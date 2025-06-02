@@ -8,7 +8,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
  * GET handler for text-only chat (no file).
- * Expects:  /api/bettercanvas-ai?prompt=...&model=...
+ * Expects:  GET /api/bettercanvas-ai?prompt=...&model=...
  */
 export async function GET(request: Request) {
   try {
@@ -23,12 +23,11 @@ export async function GET(request: Request) {
       );
     }
 
-    // ── Build a single "message"-type input item ─────────────────────────────────
+    // ── Build a single “message”‐type input item ─────────────────────────────────
     const inputItem = {
       id: uuidv4(),
       type: "message" as const,
       role: "user" as const,
-      // NOTE: content must be an array of { type: "input_text"; text: string }
       content: [
         {
           type: "input_text" as const,
@@ -43,7 +42,7 @@ export async function GET(request: Request) {
       input: [inputItem],
     });
 
-    // ── Extract assistant’s output (first "message"‐type item) ────────────────────
+    // ── Extract assistant’s output (first “message”‐type item) ───────────────────
     let text = "";
     const outputItem = resp.output?.[0];
     if (outputItem?.type === "message") {
@@ -67,9 +66,9 @@ export async function GET(request: Request) {
 }
 
 /**
- * POST handler for file‐based chat.
- * • On first call: expect a `file` + `question` (no previousResponseId).
- * • On follow‐up: expect `question` + `previousResponseId` (no file).
+ * POST handler for file-based chat.
+ *   • Initial call: receive a `file` + `question` (no previousResponseId).
+ *   • Follow-up call: receive `question` + `previousResponseId` (no file).
  */
 export async function POST(request: Request) {
   try {
@@ -87,7 +86,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Build the object we’ll pass into openai.responses.create()
+    // Build the arguments for openai.responses.create()
     const createArgs: any = { model };
 
     if (!previousResponseId) {
@@ -99,23 +98,23 @@ export async function POST(request: Request) {
         );
       }
 
-      // 1) Upload the file (purpose = "assistants")
+      // 1) Upload the file (purpose="assistants")
       const upload = await openai.files.create({
         file: maybeFile,
         purpose: "assistants",
       });
 
-      // 2) Build a single `file_search_call` input item:
+      // 2) Build a single `file_search_call` input item (camel-case!)
       createArgs.input = [
         {
           id: uuidv4(),
           type: "file_search_call" as const,
-          file_id: upload.id,
+          fileId: upload.id, // <-- was `file_id` before
           queries: [question],
         },
       ];
     } else {
-      // ── FOLLOW‐UP CALL (only question + previousResponseId) ─────────────────
+      // ── FOLLOW-UP CALL (only question + previousResponseId) ─────────────────
       createArgs.input = [
         {
           id: uuidv4(),
@@ -129,7 +128,7 @@ export async function POST(request: Request) {
           ],
         },
       ];
-      createArgs.previous_response_id = previousResponseId;
+      createArgs.previousResponseId = previousResponseId; // <-- was `previous_response_id`
     }
 
     // ── Call openai.responses.create() ─────────────────────────────────────────
