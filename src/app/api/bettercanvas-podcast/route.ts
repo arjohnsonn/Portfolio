@@ -42,6 +42,8 @@ function stripSSML(text: string): string {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    console.log("Received body:", body);
+    console.log("Topic:", body.topic);
 
     if (body.topic) {
       const completion = await openai.chat.completions.create({
@@ -69,6 +71,7 @@ export async function POST(request: Request) {
     }
 
     const dialogue: DialogueLine[] = body.dialogue;
+    console.log("Dialogue:", dialogue);
 
     if (!dialogue || !Array.isArray(dialogue)) {
       return NextResponse.json(
