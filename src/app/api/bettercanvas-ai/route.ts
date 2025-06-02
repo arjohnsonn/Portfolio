@@ -61,7 +61,7 @@ export async function POST(request: Request) {
       form.get("previousResponseId")?.toString() || null;
     const model = form.get("model")?.toString() || "gpt-4o-mini";
 
-    let createArgs: any = { model };
+    const createArgs: any = { model };
 
     if (!previousResponseId) {
       // ─── INITIAL CALL: must include a File + question ───────────────────────
