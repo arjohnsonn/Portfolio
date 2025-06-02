@@ -122,7 +122,7 @@ export async function POST(request: Request) {
       topic: body.topic ?? null,
     });
   } catch (err: any) {
-    console.error("TTS API error:", err);
+    console.error("TTS API Error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
