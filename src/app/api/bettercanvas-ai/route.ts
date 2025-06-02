@@ -1,104 +1,110 @@
+// app/api/bettercanvas-ai/route.ts
+
 import { NextResponse } from "next/server";
 import { OpenAI } from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const ASSISTANT_ID = process.env.OPENAI_ASSISTANT_ID!;
 
 /**
- * GET handler for text-only chat with optional system prompt
+ * GET handler: simple text‐only chat via Responses API
  */
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const prompt = searchParams.get("prompt") || "";
     const model = searchParams.get("model") || "gpt-4o-mini";
-    const systemPrompt = searchParams.get("system_prompt") || "";
 
-    const messages = [] as any;
-    if (systemPrompt) {
-      messages.push({ role: "system", content: systemPrompt });
-    }
-    messages.push({ role: "user", content: prompt });
-
-    const completion = await openai.chat.completions.create({
+    // Create a new Response via the Responses endpoint:
+    // - input can be a plain string when you just have text.
+    const resp = await openai.responses.create({
       model,
-      messages,
+      input: prompt,
     });
 
-    const text = completion.choices?.[0]?.message?.content || "";
-    return NextResponse.json({ text: text });
+    // The Responses API returns an array of “output” items.
+    // We’ll assume the first (and only) output_text is what we want.
+    const outputItem = resp.output?.[0];
+    let text = "";
+    if (outputItem && outputItem.type === "message") {
+      // In the “message” case, content is an array of { type, text } objects.
+      text = outputItem.content
+        .filter((c: any) => c.type === "output_text")
+        .map((c: any) => c.text || "")
+        .join("");
+    }
+
+    // Return the generated text, plus the new response’s ID so the client can continue later.
+    return NextResponse.json({
+      text,
+      responseId: resp.id,
+    });
   } catch (err: any) {
-    console.error("OpenAI request failed:", err);
+    console.error("GET /bettercanvas‐ai error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
 /**
- * POST handler: upload file once, then reuse thread for follow-ups
+ * POST handler: “file chat” via Responses API
+ *
+ * On the first call, you must upload a file blob + question:
+ *   • upload the file to OpenAI (purpose: “assistants”)
+ *   • call openai.responses.create with input = [ { type: "file", file_id }, question ]
+ *
+ * On follow‐ups, you pass `previousResponseId` to continue the same conversation:
+ *   • input = question (string)
+ *   • previous_response_id = previousResponseId
  */
 export async function POST(request: Request) {
   try {
     const form = await request.formData();
-    const file = form.get("file") as File | null;
+    const maybeFile = form.get("file");
     const question = form.get("question")?.toString() || "";
-    const systemPrompt = form.get("system_prompt")?.toString() || "";
-    const threadId = form.get("threadId")?.toString() || null;
-    const modelOverride = form.get("model")?.toString() || undefined;
+    const previousResponseId =
+      form.get("previousResponseId")?.toString() || null;
+    const model = form.get("model")?.toString() || "gpt-4o-mini";
 
-    let thread_id = threadId;
+    let createArgs: any = { model };
 
-    // Initial: upload and index file
-    if (!thread_id) {
-      if (!file) throw new Error("Missing file on initial upload");
-      const upload = await openai.files.create({ file, purpose: "assistants" });
-      const thread = await openai.beta.threads.create();
-      thread_id = thread.id;
-      await openai.beta.threads.messages.create(thread_id, {
-        role: "user",
-        content: question,
-        attachments: [{ file_id: upload.id, tools: [{ type: "file_search" }] }],
+    if (!previousResponseId) {
+      // INITIAL call: must have a File
+      if (!(maybeFile instanceof File)) {
+        throw new Error("Missing or invalid file on initial POST");
+      }
+
+      // 1) Upload to OpenAI
+      const upload = await openai.files.create({
+        file: maybeFile,
+        purpose: "assistants",
       });
+
+      // 2) Build “input” as an array: first the file, then the user’s question
+      createArgs.input = [{ type: "file", file_id: upload.id }, question];
     } else {
-      // Follow-up: append question only
-      await openai.beta.threads.messages.create(thread_id, {
-        role: "user",
-        content: question,
-      });
+      // FOLLOW‐UP: just pass the raw question string and link to previousResponseId
+      createArgs.input = question;
+      createArgs.previous_response_id = previousResponseId;
     }
 
-    // Kick off assistant run with optional overrides
-    const run = await openai.beta.threads.runs.create(thread_id, {
-      assistant_id: ASSISTANT_ID,
-      ...(modelOverride ? { model: modelOverride } : {}),
-      ...(systemPrompt ? { instructions: systemPrompt } : {}),
+    // 3) Call Responses.create()
+    const resp = await openai.responses.create(createArgs);
+
+    // 4) Extract the assistant’s reply text (first output item)
+    const outputItem = resp.output?.[0];
+    let text = "";
+    if (outputItem && outputItem.type === "message") {
+      text = outputItem.content
+        .filter((c: any) => c.type === "output_text")
+        .map((c: any) => c.text || "")
+        .join("");
+    }
+
+    return NextResponse.json({
+      text,
+      responseId: resp.id,
     });
-
-    // Poll until run completes
-    let status = run;
-    while (["queued", "in_progress"].includes(status.status)) {
-      await new Promise((r) => setTimeout(r, 500));
-      status = await openai.beta.threads.runs.retrieve(thread_id, run.id);
-    }
-    if (status.status !== "completed") {
-      throw new Error(`Run ended with status: ${status.status}`);
-    }
-
-    // Retrieve assistant reply
-    const msgs = await openai.beta.threads.messages.list(thread_id, {
-      run_id: run.id,
-      limit: 1,
-      order: "desc",
-    });
-    const reply = msgs.data[0];
-    const raw = reply.content
-      .filter((c: any) => c.type === "text")
-      .map((c: any) => (c.type === "text" ? c.text.value : ""))
-      .join("");
-    const text = raw;
-
-    return NextResponse.json({ text, threadId: thread_id });
   } catch (err: any) {
-    console.error("POST handler error:", err);
+    console.error("POST /bettercanvas‐ai error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
