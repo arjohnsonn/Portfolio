@@ -41,6 +41,7 @@ function stripSSML(text: string): string {
 
 export async function POST(request: Request) {
   try {
+    console.log("Received request for TTS podcast generation");
     const body = await request.json();
     console.warn("Received body:", body);
     console.warn("Topic:", body.topic);
