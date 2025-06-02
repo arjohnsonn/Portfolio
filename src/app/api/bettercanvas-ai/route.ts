@@ -1,6 +1,7 @@
 // app/api/bettercanvas-ai/route.ts
 
 import { NextResponse } from "next/server";
+import { constants } from "node:fs";
 import { OpenAI } from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -64,7 +65,7 @@ export async function POST(request: Request) {
       form.get("previousResponseId")?.toString() || null;
     const model = form.get("model")?.toString() || "gpt-4o-mini";
 
-    let createArgs: any = { model };
+    const createArgs: any = { model };
 
     if (!previousResponseId) {
       // INITIAL call: must have a File
