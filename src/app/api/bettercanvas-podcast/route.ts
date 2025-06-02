@@ -30,7 +30,7 @@ Guidelines:
 
 Return ONLY a JSON object in this exact format, the example below does not have to be followed exactly but the structure must be the same:
 {
-  "topic": "The topic of the podcast episode",
+  "generatedTopic": "The topic of the podcast episode, briefly.",
   "dialogue": [
     { "speaker": "AI", "text": "Welcome back to the podcast! It's just me today, and we’re gonna talk about something cool." },
     { "speaker": "AI", "text": "Seriously, this is something I’ve been thinking about a lot lately." }
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
       }
 
       try {
-        body.topic = JSON.parse(responseText).topic;
+        body.generatedTopic = JSON.parse(responseText).generatedTopic;
       } catch {
         return NextResponse.json(
           { error: "Failed to parse topic JSON from AI" },
