@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
 import { OpenAI } from "openai";
-import fs from "fs";
-import path from "path";
-import util from "util";
 import { v4 as uuidv4 } from "uuid";
 import textToSpeech from "@google-cloud/text-to-speech";
+import { createClient } from "@supabase/supabase-js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const client = new textToSpeech.TextToSpeechClient({
   credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS || "{}"),
 });
+
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 type DialogueLine = {
   speaker: string;
@@ -92,20 +95,27 @@ export async function POST(request: Request) {
       model: "studio",
     } as any);
 
-    const filename = `${uuidv4()}.mp3`;
-    const outputDir = path.join(process.cwd(), "public", "tts");
-    const outputPath = path.join(outputDir, filename);
+    const filename = `podcasts/${uuidv4()}.mp3`;
 
-    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+    const { error: uploadError } = await supabase.storage
+      .from("tts")
+      .upload(filename, response.audioContent as Buffer, {
+        contentType: "audio/mpeg",
+        upsert: true,
+      });
 
-    await util.promisify(fs.writeFile)(
-      outputPath,
-      response.audioContent as Buffer,
-      "binary"
-    );
+    if (uploadError) {
+      console.error("Supabase upload failed:", uploadError);
+      return NextResponse.json(
+        { error: "Failed to upload file to Supabase" },
+        { status: 500 }
+      );
+    }
+
+    const { data } = supabase.storage.from("tts").getPublicUrl(filename);
 
     return NextResponse.json({
-      url: `/tts/${filename}`,
+      url: data.publicUrl,
       dialogue,
       topic: body.topic ?? null,
     });
