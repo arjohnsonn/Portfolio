@@ -132,7 +132,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       url: data.publicUrl,
       dialogue,
-      topic: body.topic ?? null,
+      topic: body.generatedTopic ?? null,
     });
   } catch (err: any) {
     console.error("TTS API Error:", err);
