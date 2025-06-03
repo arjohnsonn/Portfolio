@@ -7,11 +7,8 @@ import { v4 as uuidv4 } from "uuid";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
- * GET handler for simple text‐only chat (no file_search).
- * Used when you just want a normal Q&A (no PDF involved).
- *
- * Example:
- *   GET /api/bettercanvas-ai?prompt=Hello&model=gpt-4o-mini
+ * GET handler for simple text-only chat (no file).
+ * Example: GET /api/bettercanvas-ai?prompt=Hello&model=gpt-4o-mini
  */
 export async function GET(request: Request) {
   try {
@@ -26,9 +23,9 @@ export async function GET(request: Request) {
       );
     }
 
-    // Build a single “message” input. Note: content must be an array of { type: "input_text", text }.
+    // Build a "message" input item with id starting with "msg_"
     const inputItem = {
-      id: uuidv4(),
+      id: `msg_${uuidv4()}`, // must begin with "msg_"
       type: "message" as const,
       role: "user" as const,
       content: [
@@ -39,13 +36,13 @@ export async function GET(request: Request) {
       ],
     };
 
-    // Call Responses.create() with only that one input item.
+    // Call Responses.create()
     const resp = await openai.responses.create({
       model,
       input: [inputItem],
     });
 
-    // Pull out the assistant’s reply from resp.output[0].content[*].text
+    // Extract the assistant's reply
     let text = "";
     const firstOutput = resp.output?.[0];
     if (firstOutput?.type === "message") {
@@ -69,22 +66,18 @@ export async function GET(request: Request) {
 }
 
 /**
- * POST handler for “file chat” using the File Search tool.
+ * POST handler for file-based Q&A using the File Search tool.
  *
- * - If no previousResponseId ⇒ initial call with (file + question).
- *   We:
- *     1. Upload the file to OpenAI’s File API (purpose="assistants")
- *     2. Create a brand‐new vector store
- *     3. Add the uploaded file to that vector store
- *     4. Send question → openai.responses.create({ …, tools:[{ type:"file_search", vector_store_ids: [vectorStore.id] }]})
- *     5. Return { text, responseId, vectorStoreId }
+ * Initial call (no previousResponseId):
+ *   • Accepts `file` + `question`.
+ *   • Uploads file, creates vector store, indexes file.
+ *   • Calls Responses.create() with tools: [{ type: "file_search", vector_store_ids: [vsId] }]
+ *   • Returns { text, responseId, vectorStoreId }.
  *
- * - If previousResponseId & vectorStoreId ⇒ follow-up call with just (question).
- *   We:
- *     1. Call openai.responses.create({ … input:[{type:"message", …}], previous_response_id, tools:[{ type:"file_search", vector_store_ids:[vectorStoreId] }] })
- *     2. Return { text, responseId, vectorStoreId } again.
- *
- * The client must store and re‐send `vectorStoreId` on follow-ups.
+ * Follow-up call (previousResponseId + vectorStoreId provided):
+ *   • Accepts `question`, `previousResponseId`, and `vectorStoreId`.
+ *   • Calls Responses.create() with the same vectorStoreId and previousResponseId.
+ *   • Returns { text, responseId, vectorStoreId }.
  */
 export async function POST(request: Request) {
   try {
@@ -103,13 +96,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // This will hold our eventual vectorStoreId (either newly created or passed‐in).
     let vsId: string | null = vectorStoreId;
 
-    // Build the base of our create‐response payload:
-    // We always send the user’s question as a normal “message” input item.
+    // Build the user's message input with id prefixed "msg_"
     const messageInput = {
-      id: uuidv4(),
+      id: `msg_${uuidv4()}`, // must begin with "msg_"
       type: "message" as const,
       role: "user" as const,
       content: [
@@ -120,8 +111,6 @@ export async function POST(request: Request) {
       ],
     };
 
-    // The "tools" array must exist and must point at at least one vector store ID.
-    // If this is the first time, we’ll build that array after creating vsId.
     let toolsArray: Array<{
       type: "file_search";
       vector_store_ids: string[];
@@ -130,7 +119,7 @@ export async function POST(request: Request) {
     }> = [];
 
     if (!previousResponseId) {
-      // ── INITIAL CALL (file + question) ─────────────────────────────────────
+      // ── INITIAL CALL ────────────────────────────────────────────────────────
       if (!(maybeFile instanceof File)) {
         return NextResponse.json(
           { error: "Missing or invalid file on initial POST" },
@@ -138,70 +127,52 @@ export async function POST(request: Request) {
         );
       }
 
-      // 1) Upload PDF to OpenAI File API:
+      // 1) Upload file to OpenAI File API
       const upload = await openai.files.create({
         file: maybeFile,
         purpose: "assistants",
       });
-      // upload.id is something like "file-AbCdEfGhIjKlMnOpQrStUvWx"
 
-      // 2) Create a brand‐new vector store:
+      // 2) Create a new vector store
       const vectorStore = await openai.vectorStores.create({
-        name: `vc-${uuidv4()}`, // any unique name you like
+        name: `vs_${uuidv4()}`,
       });
       vsId = vectorStore.id;
 
-      // 3) Add the file into that vector store (this triggers indexing):
+      // 3) Add the file to that vector store
       await openai.vectorStores.files.create(vectorStore.id, {
         file_id: upload.id,
       });
 
-      // (Optional: poll until the vector store has status "completed" before proceeding.
-      //  In many small PDFs, indexing happens within a second or two—so you often get away
-      //  without polling. If you see “no results” or timing errors in practice, you can add
-      //  a short loop here to wait for `openai.vectorStores.files.list({ vector_store_id: vsId })`
-      //  to show a completed status.)
-
-      // 4) Build our tools array now that vsId exists:
+      // 4) Build tools array to point at our new vector store
       toolsArray = [
         {
           type: "file_search" as const,
           vector_store_ids: [vsId],
-          // you can optionally set max_num_results or metadata‐filters here:
-          // max_num_results: 5,
-          // filters: { type: "eq", key: "department", value: "science" },
         },
       ];
     } else {
-      // ── FOLLOW‐UP CALL (previousResponseId + question) ───────────────────────
+      // ── FOLLOW-UP CALL ───────────────────────────────────────────────────────
       if (!vectorStoreId) {
         return NextResponse.json(
           {
             error:
-              "Missing `vectorStoreId` on follow-up POST. First call returns vectorStoreId; reuse it.",
+              "Missing `vectorStoreId` on follow-up POST. Use the vectorStoreId from the initial response.",
           },
           { status: 400 }
         );
       }
       vsId = vectorStoreId;
 
-      // Reuse the same vector store in our tools array:
       toolsArray = [
         {
           type: "file_search" as const,
           vector_store_ids: [vsId],
-          // you can optionally set max_num_results or filters here, too
         },
       ];
     }
 
-    // ── At this point, we have:
-    //    • messageInput
-    //    • vsId (string)
-    //    • toolsArray pointing at [vsId]
-    //    • possibly previousResponseId
-
-    // Build the final argument for openai.responses.create():
+    // Build payload for Responses.create()
     const createPayload: any = {
       model,
       input: [messageInput],
@@ -211,10 +182,10 @@ export async function POST(request: Request) {
       createPayload.previous_response_id = previousResponseId;
     }
 
-    // 5) Finally, call Responses.create() with file_search enabled:
+    // 5) Call Responses.create()
     const resp = await openai.responses.create(createPayload);
 
-    // 6) Extract the assistant’s reply from resp.output[0]:
+    // 6) Extract assistant's reply
     let text = "";
     const firstOutput = resp.output?.[0];
     if (firstOutput?.type === "message") {
@@ -224,7 +195,7 @@ export async function POST(request: Request) {
         .join("");
     }
 
-    // 7) Return text + responseId + vectorStoreId back to the client:
+    // 7) Return text, responseId, and vectorStoreId
     return NextResponse.json({
       text,
       responseId: resp.id,
