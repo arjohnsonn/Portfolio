@@ -25,6 +25,8 @@ export async function GET(request: Request) {
       messages,
     });
 
+    console.log("OpenAI completion response:", completion);
+
     const text = completion.choices?.[0]?.message?.content || "";
     return NextResponse.json({ text: text });
   } catch (err: any) {
