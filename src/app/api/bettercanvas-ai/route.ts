@@ -75,15 +75,15 @@ export async function POST(request: Request) {
       ...(systemPrompt ? { instructions: systemPrompt } : {}),
     });
 
-    // // Poll until run completes
-    // let status = run;
-    // while (["queued", "in_progress"].includes(status.status)) {
-    //   await new Promise((r) => setTimeout(r, 500));
-    //   status = await openai.beta.threads.runs.retrieve(thread_id, run.id);
-    // }
-    // if (status.status !== "completed") {
-    //   throw new Error(`Run ended with status: ${status.status}`);
-    // }
+    // Poll until run completes
+    let status = run;
+    while (["queued", "in_progress"].includes(status.status)) {
+      await new Promise((r) => setTimeout(r, 500));
+      status = await openai.beta.threads.runs.retrieve(thread_id, run.id);
+    }
+    if (status.status !== "completed") {
+      throw new Error(`Run ended with status: ${status.status}`);
+    }
 
     // Retrieve assistant reply
     const msgs = await openai.beta.threads.messages.list(thread_id, {
@@ -91,6 +91,7 @@ export async function POST(request: Request) {
       limit: 1,
       order: "desc",
     });
+    console.log();
     const reply = msgs.data[0];
     const raw = reply.content
       .filter((c: any) => c.type === "text")
