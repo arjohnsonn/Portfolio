@@ -7,8 +7,10 @@ import { v4 as uuidv4 } from "uuid";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 /**
- * GET handler for simple text-only chat (no file).
- * Example: GET /api/bettercanvas-ai?prompt=Hello&model=gpt-4o-mini
+ * GET handler for text-only chat (no file).
+ * Example usage:
+ *   GET /api/bettercanvas-ai?prompt=Hello&model=gpt-4o-mini
+ * Returns: { text, responseId }
  */
 export async function GET(request: Request) {
   try {
@@ -23,26 +25,14 @@ export async function GET(request: Request) {
       );
     }
 
-    // Build a "message" input item with id starting with "msg_"
-    const inputItem = {
-      id: `msg_${uuidv4()}`, // must begin with "msg_"
-      type: "message" as const,
-      role: "user" as const,
-      content: [
-        {
-          type: "input_text" as const,
-          text: prompt,
-        },
-      ],
-    };
-
-    // Call Responses.create()
+    // ── Call Responses.create() with a single‐string user input
+    //    (SDK automatically wraps it as a "user" message under the hood)
     const resp = await openai.responses.create({
       model,
-      input: [inputItem],
+      input: prompt,
     });
 
-    // Extract the assistant's reply
+    // ── Extract the assistant’s reply from resp.output[0].content[*].text
     let text = "";
     const firstOutput = resp.output?.[0];
     if (firstOutput?.type === "message") {
@@ -52,9 +42,10 @@ export async function GET(request: Request) {
         .join("");
     }
 
+    // ── Return only the actual OpenAI response ID (resp.id), NOT a msg_ ID
     return NextResponse.json({
       text,
-      responseId: resp.id,
+      responseId: resp.id, // e.g. "resp_xxx"
     });
   } catch (err: any) {
     console.error("GET /bettercanvas-ai error:", err);
@@ -68,16 +59,20 @@ export async function GET(request: Request) {
 /**
  * POST handler for file-based Q&A using the File Search tool.
  *
- * Initial call (no previousResponseId):
- *   • Accepts `file` + `question`.
- *   • Uploads file, creates vector store, indexes file.
- *   • Calls Responses.create() with tools: [{ type: "file_search", vector_store_ids: [vsId] }]
- *   • Returns { text, responseId, vectorStoreId }.
+ *   • Initial call (no previousResponseId):
+ *       - Expects: FormData with `file` + `question`.
+ *       - Uploads file, creates a vector store, indexes the file.
+ *       - Calls Responses.create() with tools: [{ type: "file_search", vector_store_ids: [vsId] }]
+ *       - Returns { text, responseId, vectorStoreId } (where responseId is resp.id)
  *
- * Follow-up call (previousResponseId + vectorStoreId provided):
- *   • Accepts `question`, `previousResponseId`, and `vectorStoreId`.
- *   • Calls Responses.create() with the same vectorStoreId and previousResponseId.
- *   • Returns { text, responseId, vectorStoreId }.
+ *   • Follow-up call (previousResponseId + vectorStoreId provided):
+ *       - Expects: FormData with `question`, `previousResponseId`, and `vectorStoreId`.
+ *       - Calls Responses.create() again with the same vectorStoreId and previousResponseId.
+ *       - Returns { text, responseId, vectorStoreId }.
+ *
+ * **Important**:
+ *   - The client must store the `responseId` that this endpoint returns, and send that (not a “msg_…” ID) on subsequent follow-ups.
+ *   - Likewise, store `vectorStoreId` from the initial call and re-send it for follow-ups.
  */
 export async function POST(request: Request) {
   try {
@@ -98,9 +93,10 @@ export async function POST(request: Request) {
 
     let vsId: string | null = vectorStoreId;
 
-    // Build the user's message input with id prefixed "msg_"
+    // ── Build the user’s message input. Every “message” must have an ID that begins with “msg_”
+    //    but we do NOT return or reuse that msg_ ID on the client—client only uses resp.id.
     const messageInput = {
-      id: `msg_${uuidv4()}`, // must begin with "msg_"
+      id: `msg_${uuidv4()}`, // MUST start with "msg_"
       type: "message" as const,
       role: "user" as const,
       content: [
@@ -111,6 +107,7 @@ export async function POST(request: Request) {
       ],
     };
 
+    // ── We'll build a `tools` array that references our vector store (if applicable)
     let toolsArray: Array<{
       type: "file_search";
       vector_store_ids: string[];
@@ -119,7 +116,7 @@ export async function POST(request: Request) {
     }> = [];
 
     if (!previousResponseId) {
-      // ── INITIAL CALL ────────────────────────────────────────────────────────
+      // ── INITIAL CALL (file + question) ───────────────────────────────────
       if (!(maybeFile instanceof File)) {
         return NextResponse.json(
           { error: "Missing or invalid file on initial POST" },
@@ -127,24 +124,24 @@ export async function POST(request: Request) {
         );
       }
 
-      // 1) Upload file to OpenAI File API
+      // 1) Upload the file to OpenAI (purpose="assistants")
       const upload = await openai.files.create({
         file: maybeFile,
         purpose: "assistants",
       });
 
-      // 2) Create a new vector store
+      // 2) Create a brand-new vector store
       const vectorStore = await openai.vectorStores.create({
         name: `vs_${uuidv4()}`,
       });
-      vsId = vectorStore.id;
+      vsId = vectorStore.id; // e.g. "vs_xxx"
 
-      // 3) Add the file to that vector store
+      // 3) Index the uploaded file into that vector store
       await openai.vectorStores.files.create(vectorStore.id, {
-        file_id: upload.id,
+        file_id: upload.id, // Must be snake_case here
       });
 
-      // 4) Build tools array to point at our new vector store
+      // 4) Build the tools array so the model can run `file_search` on vsId
       toolsArray = [
         {
           type: "file_search" as const,
@@ -152,7 +149,7 @@ export async function POST(request: Request) {
         },
       ];
     } else {
-      // ── FOLLOW-UP CALL ───────────────────────────────────────────────────────
+      // ── FOLLOW-UP CALL (question + previousResponseId + vectorStoreId) ─────────
       if (!vectorStoreId) {
         return NextResponse.json(
           {
@@ -172,20 +169,21 @@ export async function POST(request: Request) {
       ];
     }
 
-    // Build payload for Responses.create()
+    // ── Build the payload for openai.responses.create()
     const createPayload: any = {
       model,
-      input: [messageInput],
+      input: [messageInput], // always send just this new user message
       tools: toolsArray,
     };
     if (previousResponseId) {
+      // Note: previousResponseId must be the response.id (resp.id), not a "msg_..."
       createPayload.previous_response_id = previousResponseId;
     }
 
-    // 5) Call Responses.create()
+    // 5) Call Responses.create() with file_search enabled (or just the user msg if follow-up)
     const resp = await openai.responses.create(createPayload);
 
-    // 6) Extract assistant's reply
+    // 6) Extract the assistant’s reply (the first output item of type "message")
     let text = "";
     const firstOutput = resp.output?.[0];
     if (firstOutput?.type === "message") {
@@ -195,11 +193,11 @@ export async function POST(request: Request) {
         .join("");
     }
 
-    // 7) Return text, responseId, and vectorStoreId
+    // 7) Return text, the new responseId (resp.id), and vsId (vectorStoreId) if any
     return NextResponse.json({
       text,
-      responseId: resp.id,
-      vectorStoreId: vsId,
+      responseId: resp.id, // e.g. "resp_xxx"
+      vectorStoreId: vsId, // e.g. "vs_xxx"
     });
   } catch (err: any) {
     console.error("POST /bettercanvas-ai error:", err);
