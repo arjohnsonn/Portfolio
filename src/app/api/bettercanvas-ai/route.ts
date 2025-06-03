@@ -161,13 +161,12 @@ export async function POST(request: Request) {
         file_id: upload.id,
       });
 
-      // Wait for the file to be processed in the vector store
       let fileStatus = await openai.vectorStores.files.retrieve(
         vectorStore.id,
         upload.id
       );
       while (fileStatus.status === "in_progress") {
-        await new Promise((resolve) => setTimeout(resolve, 100)); // Wait 100ms
+        await new Promise((resolve) => setTimeout(resolve, 50));
         fileStatus = await openai.vectorStores.files.retrieve(
           vectorStore.id,
           upload.id
