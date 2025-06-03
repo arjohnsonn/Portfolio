@@ -1,208 +1,104 @@
-// app/api/bettercanvas-ai/route.ts
-
 import { NextResponse } from "next/server";
 import { OpenAI } from "openai";
-import { v4 as uuidv4 } from "uuid";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const ASSISTANT_ID = process.env.OPENAI_ASSISTANT_ID!;
 
 /**
- * GET handler: plain text chat (no file).
- *   GET /api/bettercanvas-ai?prompt=…&model=…
- * Returns JSON: { text: string, responseId: string }
+ * GET handler for text-only chat with optional system prompt
  */
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const prompt = searchParams.get("prompt");
+    const prompt = searchParams.get("prompt") || "";
     const model = searchParams.get("model") || "gpt-4o-mini";
+    const systemPrompt = searchParams.get("system_prompt") || "";
 
-    if (!prompt) {
-      return NextResponse.json(
-        { error: "Missing `prompt` query parameter" },
-        { status: 400 }
-      );
+    const messages = [] as any;
+    if (systemPrompt) {
+      messages.push({ role: "system", content: systemPrompt });
     }
+    messages.push({ role: "user", content: prompt });
 
-    // Send a single string; the SDK wraps it as a user message under the hood.
-    const resp = await openai.responses.create({
+    const completion = await openai.chat.completions.create({
       model,
-      input: prompt,
+      messages,
     });
 
-    // Extract assistant’s reply from resp.output[0]
-    let text = "";
-    const firstOutput = resp.output?.[0];
-    if (firstOutput?.type === "message") {
-      text = firstOutput.content
-        .filter((c: any) => c.type === "output_text")
-        .map((c: any) => c.text || "")
-        .join("");
-    }
-
-    return NextResponse.json({
-      text,
-      responseId: resp.id, // e.g. "resp_ABC123"
-    });
+    const text = completion.choices?.[0]?.message?.content || "";
+    return NextResponse.json({ text: text });
   } catch (err: any) {
-    console.error("GET /bettercanvas-ai error:", err);
-    return NextResponse.json(
-      { error: err.message || "Unknown server error" },
-      { status: 500 }
-    );
+    console.error("OpenAI request failed:", err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
 /**
- * POST handler: file-based Q&A (using File Search).
- *
- * Initial call (no previousResponseId):
- *   • Expects FormData with `file` (PDF) + `question`.
- *   • Uploads PDF, creates + indexes vector store.
- *   • Calls Responses.create({ input:[{id:"msg_…",…}], tools:[{type:"file_search",vector_store_ids:[vsId]}] })
- *   • Returns JSON: { text, responseId, vectorStoreId }.
- *
- * Follow-up call (previousResponseId + vectorStoreId provided):
- *   • Expects FormData with `question`, `previousResponseId`, `vectorStoreId`.
- *   • Calls Responses.create(...) with the same vectorStoreId + previousResponseId.
- *   • Returns JSON: { text, responseId, vectorStoreId }.
- *
- * IMPORTANT:
- *  - Each “message” input must have `id` starting with "msg_".
- *  - We return **only** `resp.id` (which always begins with "resp_") to the client.
- *  - On follow-ups, the client must pass back that “resp_…” as `previousResponseId`.
- *  - We also return `vectorStoreId` so the client can re-use it.
+ * POST handler: upload file once, then reuse thread for follow-ups
  */
 export async function POST(request: Request) {
   try {
     const form = await request.formData();
-    const maybeFile = form.get("file");
+    const file = form.get("file") as File | null;
     const question = form.get("question")?.toString() || "";
-    const previousResponseId =
-      form.get("previousResponseId")?.toString() || null;
-    const vectorStoreId = form.get("vectorStoreId")?.toString() || null;
-    const model = form.get("model")?.toString() || "gpt-4o-mini";
+    const systemPrompt = form.get("system_prompt")?.toString() || "";
+    const threadId = form.get("threadId")?.toString() || null;
+    const modelOverride = form.get("model")?.toString() || undefined;
 
-    if (!question) {
-      return NextResponse.json(
-        { error: "Missing `question` in form data" },
-        { status: 400 }
-      );
-    }
+    let thread_id = threadId;
 
-    // Determine if this is really a follow-up: previousResponseId must start with "resp_"
-    const isFollowUp =
-      previousResponseId != null && previousResponseId.startsWith("resp_");
-
-    let vsId: string | null = vectorStoreId;
-    let toolsArray: Array<{
-      type: "file_search";
-      vector_store_ids: string[];
-      max_num_results?: number;
-      filters?: unknown;
-    }> = [];
-
-    if (!isFollowUp) {
-      // ── INITIAL CALL ────────────────────────────────────────────────────
-      if (!(maybeFile instanceof File)) {
-        return NextResponse.json(
-          { error: "Missing or invalid file on initial POST" },
-          { status: 400 }
-        );
-      }
-
-      // 1) Upload PDF (purpose="assistants")
-      const upload = await openai.files.create({
-        file: maybeFile,
-        purpose: "assistants",
+    // Initial: upload and index file
+    if (!thread_id) {
+      if (!file) throw new Error("Missing file on initial upload");
+      const upload = await openai.files.create({ file, purpose: "assistants" });
+      const thread = await openai.beta.threads.create();
+      thread_id = thread.id;
+      await openai.beta.threads.messages.create(thread_id, {
+        role: "user",
+        content: question,
+        attachments: [{ file_id: upload.id, tools: [{ type: "file_search" }] }],
       });
-
-      // 2) Create a new vector store
-      const vectorStore = await openai.vectorStores.create({
-        name: `vs_${uuidv4()}`,
-      });
-      vsId = vectorStore.id; // e.g. "vs_ABC123"
-
-      // 3) Index PDF into that vector store
-      await openai.vectorStores.files.create(vectorStore.id, {
-        file_id: upload.id, // MUST use snake_case here
-      });
-
-      // 4) Build the tools array so model can call file_search on vsId
-      toolsArray = [
-        {
-          type: "file_search" as const,
-          vector_store_ids: [vsId],
-        },
-      ];
     } else {
-      // ── FOLLOW‐UP CALL ─────────────────────────────────────────────────
-      if (!vectorStoreId || !vectorStoreId.startsWith("vs_")) {
-        return NextResponse.json(
-          {
-            error:
-              "Missing or invalid `vectorStoreId` on follow-up. Use the vectorStoreId returned from the initial call.",
-          },
-          { status: 400 }
-        );
-      }
-      vsId = vectorStoreId;
-
-      toolsArray = [
-        {
-          type: "file_search" as const,
-          vector_store_ids: [vsId],
-        },
-      ];
+      // Follow-up: append question only
+      await openai.beta.threads.messages.create(thread_id, {
+        role: "user",
+        content: question,
+      });
     }
 
-    // ── Build the single user‐message object. Its ID must start with "msg_"
-    const messageInput = {
-      id: `msg_${uuidv4()}`, // MUST begin with "msg_"
-      type: "message" as const,
-      role: "user" as const,
-      content: [
-        {
-          type: "input_text" as const,
-          text: question,
-        },
-      ],
-    };
-
-    // ── Build payload for openai.responses.create()
-    const createPayload: any = {
-      model,
-      input: [messageInput],
-      tools: toolsArray,
-    };
-    if (isFollowUp) {
-      createPayload.previous_response_id = previousResponseId;
-    }
-
-    // 5) Call Responses.create()
-    const resp = await openai.responses.create(createPayload);
-
-    // 6) Extract assistant’s reply
-    let text = "";
-    const firstOutput = resp.output?.[0];
-    if (firstOutput?.type === "message") {
-      text = firstOutput.content
-        .filter((c: any) => c.type === "output_text")
-        .map((c: any) => c.text || "")
-        .join("");
-    }
-
-    // 7) Return JSON: text, responseId (resp.id), and vectorStoreId (vsId)
-    return NextResponse.json({
-      text,
-      responseId: resp.id, // e.g. "resp_ABC123"
-      vectorStoreId: vsId, // e.g. "vs_ABC123"
+    // Kick off assistant run with optional overrides
+    const run = await openai.beta.threads.runs.create(thread_id, {
+      assistant_id: ASSISTANT_ID,
+      ...(modelOverride ? { model: modelOverride } : {}),
+      ...(systemPrompt ? { instructions: systemPrompt } : {}),
     });
+
+    // // Poll until run completes
+    // let status = run;
+    // while (["queued", "in_progress"].includes(status.status)) {
+    //   await new Promise((r) => setTimeout(r, 500));
+    //   status = await openai.beta.threads.runs.retrieve(thread_id, run.id);
+    // }
+    // if (status.status !== "completed") {
+    //   throw new Error(`Run ended with status: ${status.status}`);
+    // }
+
+    // Retrieve assistant reply
+    const msgs = await openai.beta.threads.messages.list(thread_id, {
+      run_id: run.id,
+      limit: 1,
+      order: "desc",
+    });
+    const reply = msgs.data[0];
+    const raw = reply.content
+      .filter((c: any) => c.type === "text")
+      .map((c: any) => (c.type === "text" ? c.text.value : ""))
+      .join("");
+    const text = raw;
+
+    return NextResponse.json({ text, threadId: thread_id });
   } catch (err: any) {
-    console.error("POST /bettercanvas-ai error:", err);
-    return NextResponse.json(
-      { error: err.message || "Unknown server error" },
-      { status: 500 }
-    );
+    console.error("POST handler error:", err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
