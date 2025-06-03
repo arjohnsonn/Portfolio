@@ -129,6 +129,16 @@ export async function POST(request: Request) {
     const modelOverride = form.get("model")?.toString() || "gpt-4o-mini";
     const stream = form.get("stream") === "true";
 
+    console.log("POST request received:", {
+      hasFile: !!file,
+      fileName: file?.name,
+      question: question.substring(0, 50) + "...",
+      conversationId,
+      vectorStoreId,
+      modelOverride,
+      stream,
+    });
+
     let currentVectorStoreId = vectorStoreId;
 
     // If this is a new conversation with a file, upload and create vector store
