@@ -264,6 +264,8 @@ export async function POST(request: Request) {
       });
     }
 
+    console.log("Not streaming, using Responses API directly:");
+
     // Non-streaming response using Responses API
     const response = await openai.responses.create({
       model: modelOverride,
