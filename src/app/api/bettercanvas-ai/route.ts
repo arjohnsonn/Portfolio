@@ -3,11 +3,11 @@ import { OpenAI } from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// This is required for streaming in Next.js App Router
+// Required for streaming in Next.js App Router
 export const dynamic = "force-dynamic";
 
 /**
- * GET handler with proper streaming support
+ * GET handler using the actual Responses API with streaming
  */
 export async function GET(request: Request) {
   try {
@@ -18,68 +18,51 @@ export async function GET(request: Request) {
     const conversationId = searchParams.get("conversation_id") || null;
     const stream = searchParams.get("stream") === "true";
 
-    // If streaming is requested
+    // Build the input for Responses API
+    const input = prompt;
+
     if (stream) {
       const encoder = new TextEncoder();
 
       const readableStream = new ReadableStream({
         async start(controller) {
           try {
-            // Use OpenAI's streaming with Chat Completions
-            const completion = await openai.chat.completions.create({
+            // Use the actual Responses API with streaming
+            const stream = await openai.responses.create({
               model,
-              messages: [
-                ...(systemPrompt
-                  ? [{ role: "system" as const, content: systemPrompt }]
-                  : []),
-                { role: "user" as const, content: prompt },
-              ],
+              input,
+              ...(systemPrompt ? { instructions: systemPrompt } : {}),
               stream: true,
+              store: true,
             });
 
-            // Send initial event
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  type: "response.created",
-                  data: {
-                    id: `conv_${Date.now()}`,
-                    status: "in_progress",
-                    conversationId: conversationId || `conv_${Date.now()}`,
-                  },
-                })}\n\n`
-              )
-            );
+            // Process the stream events
+            for await (const event of stream) {
+              let eventData: any = {
+                type: event.type,
+                data: event,
+              };
 
-            let fullText = "";
-            for await (const chunk of completion) {
-              const delta = chunk.choices[0]?.delta?.content || "";
-              if (delta) {
-                fullText += delta;
-                const event = {
-                  type: "response.output_text.delta",
-                  delta,
-                  text: fullText,
+              // Handle specific event types with proper type checking
+              if (event.type === "response.output_text.delta") {
+                const deltaEvent = event as any;
+                eventData.delta = deltaEvent.delta;
+              } else if (event.type === "response.completed") {
+                const completedEvent = event as any;
+                eventData.data = {
+                  text: completedEvent.response?.output_text || "",
+                  conversationId: conversationId || `conv_${Date.now()}`,
+                  status: "completed",
                 };
-                controller.enqueue(
-                  encoder.encode(`data: ${JSON.stringify(event)}\n\n`)
-                );
+              } else if (event.type === "error") {
+                const errorEvent = event as any;
+                eventData.error = errorEvent.message || "Unknown error";
               }
-            }
 
-            // Send completion event
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  type: "response.completed",
-                  data: {
-                    text: fullText,
-                    status: "completed",
-                    conversationId: conversationId || `conv_${Date.now()}`,
-                  },
-                })}\n\n`
-              )
-            );
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify(eventData)}\n\n`)
+              );
+            }
 
             controller.close();
           } catch (error) {
@@ -109,25 +92,22 @@ export async function GET(request: Request) {
       });
     }
 
-    // Non-streaming response
-    const messages = [] as any[];
-    if (systemPrompt) {
-      messages.push({ role: "system", content: systemPrompt });
-    }
-    messages.push({ role: "user", content: prompt });
-
-    const completion = await openai.chat.completions.create({
+    // Non-streaming response using Responses API
+    const response = await openai.responses.create({
       model,
-      messages,
+      input,
+      ...(systemPrompt ? { instructions: systemPrompt } : {}),
+      store: true,
     });
 
-    const text = completion.choices?.[0]?.message?.content || "";
+    const text = (response as any).output_text || "";
 
     return NextResponse.json({
       text,
       conversationId: conversationId || `conv_${Date.now()}`,
-      model: completion.model,
-      usage: completion.usage,
+      responseId: response.id,
+      model: response.model,
+      usage: response.usage,
     });
   } catch (err: any) {
     console.error("OpenAI request failed:", err);
@@ -136,7 +116,7 @@ export async function GET(request: Request) {
 }
 
 /**
- * POST handler: file upload and analysis with streaming support
+ * POST handler for file uploads using Responses API with file_search tool
  */
 export async function POST(request: Request) {
   try {
@@ -173,155 +153,66 @@ export async function POST(request: Request) {
       currentVectorStoreId = vectorStore.id;
     }
 
-    // If streaming is requested
+    // Build tools array for file search
+    const tools: any[] = [];
+    if (currentVectorStoreId) {
+      tools.push({
+        type: "file_search",
+        vector_store_ids: [currentVectorStoreId],
+      });
+    }
+
     if (stream) {
       const encoder = new TextEncoder();
 
       const readableStream = new ReadableStream({
         async start(controller) {
-          let assistant: any = null;
           try {
-            // Send initial events
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  type: "response.created",
-                  data: {
-                    id: `conv_${Date.now()}`,
-                    status: "in_progress",
-                    conversationId: conversationId || `conv_${Date.now()}`,
-                    vectorStoreId: currentVectorStoreId,
-                  },
-                })}\n\n`
-              )
-            );
-
-            if (currentVectorStoreId) {
-              controller.enqueue(
-                encoder.encode(
-                  `data: ${JSON.stringify({
-                    type: "response.file_search_call.in_progress",
-                    data: { vectorStoreId: currentVectorStoreId },
-                  })}\n\n`
-                )
-              );
-            }
-
-            // Create assistant
-            const assistantConfig = {
+            // Use Responses API with file_search tool and streaming
+            const stream = await openai.responses.create({
               model: modelOverride,
-              tools: [{ type: "file_search" as const }],
+              input: question,
               ...(systemPrompt ? { instructions: systemPrompt } : {}),
+              ...(tools.length > 0 ? { tools } : {}),
+              stream: true,
+              store: true,
+              // Include search results in response
               ...(currentVectorStoreId
                 ? {
-                    tool_resources: {
-                      file_search: {
-                        vector_store_ids: [currentVectorStoreId],
-                      },
-                    },
+                    include: ["file_search_call.results"],
                   }
                 : {}),
-            };
-
-            assistant = await openai.beta.assistants.create(assistantConfig);
-            const thread = await openai.beta.threads.create();
-
-            await openai.beta.threads.messages.create(thread.id, {
-              role: "user",
-              content: question,
             });
 
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  type: "response.file_search_call.searching",
-                  data: {},
-                })}\n\n`
-              )
-            );
+            // Process the stream events
+            for await (const event of stream) {
+              let eventData: any = {
+                type: event.type,
+                data: event,
+              };
 
-            const run = await openai.beta.threads.runs.create(thread.id, {
-              assistant_id: assistant.id,
-            });
+              // Handle specific event types with proper type checking
+              if (event.type === "response.output_text.delta") {
+                const deltaEvent = event as any;
+                eventData.delta = deltaEvent.delta;
+              } else if (event.type === "response.completed") {
+                const completedEvent = event as any;
+                eventData.data = {
+                  text: completedEvent.response?.output_text || "",
+                  conversationId: conversationId || `conv_${Date.now()}`,
+                  vectorStoreId: currentVectorStoreId,
+                  responseId: completedEvent.response?.id,
+                  status: "completed",
+                };
+              } else if (event.type === "error") {
+                const errorEvent = event as any;
+                eventData.error = errorEvent.message || "Unknown error";
+              }
 
-            // Poll for completion and stream updates
-            let status = run;
-            while (["queued", "in_progress"].includes(status.status)) {
               controller.enqueue(
-                encoder.encode(
-                  `data: ${JSON.stringify({
-                    type: "response.in_progress",
-                    data: { status: status.status },
-                  })}\n\n`
-                )
-              );
-
-              await new Promise((r) => setTimeout(r, 1000));
-              status = await openai.beta.threads.runs.retrieve(
-                thread.id,
-                run.id
+                encoder.encode(`data: ${JSON.stringify(eventData)}\n\n`)
               );
             }
-
-            if (status.status !== "completed") {
-              throw new Error(`Run ended with status: ${status.status}`);
-            }
-
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  type: "response.file_search_call.completed",
-                  data: {},
-                })}\n\n`
-              )
-            );
-
-            // Get final response
-            const msgs = await openai.beta.threads.messages.list(thread.id, {
-              run_id: run.id,
-              limit: 1,
-              order: "desc",
-            });
-
-            const reply = msgs.data[0];
-            const text = reply.content
-              .filter((c: any) => c.type === "text")
-              .map((c: any) => c.text.value)
-              .join("");
-
-            // Send text as if it was streaming (simulate delta for UX)
-            const words = text.split(" ");
-            let currentText = "";
-            for (const word of words) {
-              currentText += (currentText ? " " : "") + word;
-              controller.enqueue(
-                encoder.encode(
-                  `data: ${JSON.stringify({
-                    type: "response.output_text.delta",
-                    delta: currentText === word ? word : " " + word,
-                    text: currentText,
-                  })}\n\n`
-                )
-              );
-              // Small delay to make it feel like streaming
-              await new Promise((r) => setTimeout(r, 50));
-            }
-
-            // Send completion event
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  type: "response.completed",
-                  data: {
-                    text,
-                    conversationId: conversationId || `conv_${Date.now()}`,
-                    vectorStoreId: currentVectorStoreId,
-                    threadId: thread.id,
-                    status: "completed",
-                  },
-                })}\n\n`
-              )
-            );
 
             controller.close();
           } catch (error) {
@@ -335,15 +226,6 @@ export async function POST(request: Request) {
               )
             );
             controller.close();
-          } finally {
-            // Cleanup assistant
-            if (assistant) {
-              try {
-                await openai.beta.assistants.del(assistant.id);
-              } catch (err) {
-                console.warn("Failed to cleanup assistant:", err);
-              }
-            }
           }
         },
       });
@@ -360,73 +242,29 @@ export async function POST(request: Request) {
       });
     }
 
-    // Non-streaming response (your existing logic)
-    const assistantConfig = {
+    // Non-streaming response using Responses API
+    const response = await openai.responses.create({
       model: modelOverride,
-      tools: [{ type: "file_search" as const }],
+      input: question,
       ...(systemPrompt ? { instructions: systemPrompt } : {}),
+      ...(tools.length > 0 ? { tools } : {}),
+      store: true,
       ...(currentVectorStoreId
         ? {
-            tool_resources: {
-              file_search: {
-                vector_store_ids: [currentVectorStoreId],
-              },
-            },
+            include: ["file_search_call.results"],
           }
         : {}),
-    };
+    });
 
-    const assistant = await openai.beta.assistants.create(assistantConfig);
+    const text = (response as any).output_text || "";
 
-    try {
-      const thread = await openai.beta.threads.create();
-
-      await openai.beta.threads.messages.create(thread.id, {
-        role: "user",
-        content: question,
-      });
-
-      const run = await openai.beta.threads.runs.create(thread.id, {
-        assistant_id: assistant.id,
-      });
-
-      let status = run;
-      while (["queued", "in_progress"].includes(status.status)) {
-        await new Promise((r) => setTimeout(r, 500));
-        status = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-      }
-
-      if (status.status !== "completed") {
-        throw new Error(`Run ended with status: ${status.status}`);
-      }
-
-      const msgs = await openai.beta.threads.messages.list(thread.id, {
-        run_id: run.id,
-        limit: 1,
-        order: "desc",
-      });
-
-      const reply = msgs.data[0];
-      const text = reply.content
-        .filter((c: any) => c.type === "text")
-        .map((c: any) => c.text.value)
-        .join("");
-
-      const annotations = reply.content
-        .filter((c: any) => c.type === "text")
-        .flatMap((c: any) => c.text.annotations || []);
-
-      return NextResponse.json({
-        text,
-        conversationId: conversationId || `conv_${Date.now()}`,
-        vectorStoreId: currentVectorStoreId,
-        threadId: thread.id,
-        annotations,
-        usage: status.usage,
-      });
-    } finally {
-      await openai.beta.assistants.del(assistant.id);
-    }
+    return NextResponse.json({
+      text,
+      conversationId: conversationId || `conv_${Date.now()}`,
+      vectorStoreId: currentVectorStoreId,
+      responseId: response.id,
+      usage: response.usage,
+    });
   } catch (err: any) {
     console.error("POST handler error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
@@ -440,7 +278,7 @@ export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const vectorStoreId = searchParams.get("vector_store_id");
-    const threadId = searchParams.get("thread_id");
+    const responseId = searchParams.get("response_id");
 
     if (vectorStoreId) {
       try {
@@ -450,11 +288,11 @@ export async function DELETE(request: Request) {
       }
     }
 
-    if (threadId) {
+    if (responseId) {
       try {
-        await openai.beta.threads.del(threadId);
+        await openai.responses.del(responseId);
       } catch (err) {
-        console.warn("Failed to delete thread:", err);
+        console.warn("Failed to delete response:", err);
       }
     }
 
