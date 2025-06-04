@@ -55,6 +55,8 @@ export async function GET(request: Request) {
                   status: "completed",
                   usage: completedEvent.response?.usage || null,
                 };
+
+                console.log(eventData.data.usage);
               } else if (event.type === "error") {
                 const errorEvent = event as any;
                 eventData.error = errorEvent.message || "Unknown error";
