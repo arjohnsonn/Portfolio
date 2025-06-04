@@ -32,6 +32,7 @@ export async function GET(request: Request) {
               model,
               input,
               ...(systemPrompt ? { instructions: systemPrompt } : {}),
+              user: "BC", // Adding constant user parameter for better caching
               stream: true,
               store: true,
             });
@@ -100,6 +101,7 @@ export async function GET(request: Request) {
       model,
       input,
       ...(systemPrompt ? { instructions: systemPrompt } : {}),
+      user: "BC", // Adding constant user parameter for better caching
       store: true,
     });
 
@@ -215,6 +217,7 @@ export async function POST(request: Request) {
               input: question,
               ...(systemPrompt ? { instructions: systemPrompt } : {}),
               ...(tools.length > 0 ? { tools } : {}),
+              user: "BC", // Adding constant user parameter for better caching
               stream: true,
               store: true,
               // Include search results in response
@@ -292,6 +295,7 @@ export async function POST(request: Request) {
       input: question,
       ...(systemPrompt ? { instructions: systemPrompt } : {}),
       ...(tools.length > 0 ? { tools } : {}),
+      user: "BC", // Adding constant user parameter for better caching
       store: true,
       ...(currentVectorStoreId
         ? {
