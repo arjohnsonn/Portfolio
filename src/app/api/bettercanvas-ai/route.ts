@@ -53,6 +53,7 @@ export async function GET(request: Request) {
                   text: completedEvent.response?.output_text || "",
                   conversationId: conversationId || `conv_${Date.now()}`,
                   status: "completed",
+                  usage: completedEvent.response?.usage || null,
                 };
               } else if (event.type === "error") {
                 const errorEvent = event as any;
@@ -241,6 +242,7 @@ export async function POST(request: Request) {
                   vectorStoreId: currentVectorStoreId,
                   responseId: completedEvent.response?.id,
                   status: "completed",
+                  usage: completedEvent.response?.usage || null,
                 };
               } else if (event.type === "error") {
                 const errorEvent = event as any;
