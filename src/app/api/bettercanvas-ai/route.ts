@@ -7,7 +7,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 export const dynamic = "force-dynamic";
 
 /**
- * GET handler using the actual Responses API with streaming
+ * GET handler with proper conversation chaining
  */
 export async function GET(request: Request) {
   try {
@@ -15,11 +15,24 @@ export async function GET(request: Request) {
     const prompt = searchParams.get("prompt") || "";
     const model = searchParams.get("model") || "gpt-4o-mini";
     const systemPrompt = searchParams.get("system_prompt") || "";
-    const conversationId = searchParams.get("conversation_id") || null;
+    const previousResponseId = searchParams.get("conversation_id") || null;
     const stream = searchParams.get("stream") === "true";
 
-    // Build the input for Responses API
-    const input = prompt;
+    // Build the request - use previous_response_id for conversation continuity
+    const requestParams: any = {
+      model,
+      input: prompt, // For new conversations, just the prompt
+      ...(systemPrompt ? { instructions: systemPrompt } : {}),
+      user: "BC",
+      store: true,
+    };
+
+    // If we have a previous response, chain the conversation
+    if (previousResponseId && previousResponseId !== "undefined") {
+      requestParams.previous_response_id = previousResponseId;
+      // When chaining, input should be an array with the new message
+      requestParams.input = [{ role: "user", content: prompt }];
+    }
 
     if (stream) {
       const encoder = new TextEncoder();
@@ -27,40 +40,36 @@ export async function GET(request: Request) {
       const readableStream = new ReadableStream({
         async start(controller) {
           try {
-            // Use the actual Responses API with streaming
-            const stream = await openai.responses.create({
-              model,
-              input,
-              ...(systemPrompt ? { instructions: systemPrompt } : {}),
-              user: "BC", // Adding constant user parameter for better caching
-              stream: true,
-              store: true,
-            });
+            // Add stream: true to the params
+            const streamParams = { ...requestParams, stream: true };
+            const responseStream = await openai.responses.create(streamParams);
 
-            // Process the stream events
-            for await (const event of stream) {
+            let responseId = "";
+            let fullText = "";
+
+            // Properly type the async iterator
+            for await (const event of responseStream as any) {
               let eventData: any = {
                 type: event.type,
                 data: event,
               };
 
-              // Handle specific event types with proper type checking
               if (event.type === "response.output_text.delta") {
-                const deltaEvent = event as any;
-                eventData.delta = deltaEvent.delta;
+                eventData.delta = event.delta;
+                fullText += event.delta || "";
               } else if (event.type === "response.completed") {
-                const completedEvent = event as any;
+                responseId = event.response?.id || "";
                 eventData.data = {
-                  text: completedEvent.response?.output_text || "",
-                  conversationId: conversationId || `conv_${Date.now()}`,
+                  text: event.response?.output_text || fullText,
+                  conversationId: responseId, // Use the actual response ID as conversation ID
+                  responseId: responseId,
                   status: "completed",
-                  usage: completedEvent.response?.usage || null,
+                  usage: event.response?.usage || null,
                 };
 
-                console.log(eventData.data.usage);
+                console.log("Streaming response completed:", eventData.data);
               } else if (event.type === "error") {
-                const errorEvent = event as any;
-                eventData.error = errorEvent.message || "Unknown error";
+                eventData.error = event.message || "Unknown error";
               }
 
               controller.enqueue(
@@ -70,6 +79,7 @@ export async function GET(request: Request) {
 
             controller.close();
           } catch (error) {
+            console.error("Streaming error:", error);
             controller.enqueue(
               encoder.encode(
                 `data: ${JSON.stringify({
@@ -96,20 +106,16 @@ export async function GET(request: Request) {
       });
     }
 
-    // Non-streaming response using Responses API
-    const response = await openai.responses.create({
-      model,
-      input,
-      ...(systemPrompt ? { instructions: systemPrompt } : {}),
-      user: "BC", // Adding constant user parameter for better caching
-      store: true,
-    });
+    // Non-streaming response
+    const response = await openai.responses.create(requestParams);
 
-    const text = (response as any).output_text || "";
+    // Type assertion for the response
+    const typedResponse = response as any;
+    const text = typedResponse.output_text || "";
 
     return NextResponse.json({
       text,
-      conversationId: conversationId || `conv_${Date.now()}`,
+      conversationId: response.id, // Use the actual response ID
       responseId: response.id,
       model: response.model,
       usage: response.usage,
@@ -121,7 +127,7 @@ export async function GET(request: Request) {
 }
 
 /**
- * POST handler for file uploads using Responses API with file_search tool
+ * POST handler with conversation chaining for file uploads
  */
 export async function POST(request: Request) {
   try {
@@ -129,7 +135,7 @@ export async function POST(request: Request) {
     const file = form.get("file") as File | null;
     const question = form.get("question")?.toString() || "";
     const systemPrompt = form.get("system_prompt")?.toString() || "";
-    const conversationId = form.get("conversation_id")?.toString() || null;
+    const previousResponseId = form.get("conversation_id")?.toString() || null;
     const vectorStoreId = form.get("vector_store_id")?.toString() || null;
     const modelOverride = form.get("model")?.toString() || "gpt-4o-mini";
     const stream = form.get("stream") === "true";
@@ -140,15 +146,16 @@ export async function POST(request: Request) {
       hasFile: !!file,
       fileName: file?.name,
       question: question.substring(0, 50) + "...",
-      conversationId,
+      previousResponseId,
       vectorStoreId,
       modelOverride,
       stream,
-      currentVectorStoreId,
     });
 
-    // If this is a new conversation with a file, upload and create vector store
-    if (!conversationId && file) {
+    // Handle file upload for new conversations
+    if (!previousResponseId && file) {
+      console.log("Creating new vector store for file:", file.name);
+
       const upload = await openai.files.create({
         file,
         purpose: "assistants",
@@ -166,12 +173,14 @@ export async function POST(request: Request) {
         file_id: upload.id,
       });
 
+      // Wait for file processing
       let fileStatus = await openai.vectorStores.files.retrieve(
         vectorStore.id,
         upload.id
       );
+
       while (fileStatus.status === "in_progress") {
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         fileStatus = await openai.vectorStores.files.retrieve(
           vectorStore.id,
           upload.id
@@ -183,6 +192,7 @@ export async function POST(request: Request) {
       }
 
       currentVectorStoreId = vectorStore.id;
+      console.log("Vector store created:", currentVectorStoreId);
     }
 
     // Build tools array for file search
@@ -194,64 +204,77 @@ export async function POST(request: Request) {
       });
     }
 
-    if (stream) {
-      console.log("if stream after :", {
-        hasFile: !!file,
-        fileName: file?.name,
-        question: question.substring(0, 50) + "...",
-        conversationId,
-        vectorStoreId,
-        modelOverride,
-        stream,
-        currentVectorStoreId,
-      });
+    // Build the request with proper conversation chaining
+    const requestParams: any = {
+      model: modelOverride,
+      input: question,
+      ...(systemPrompt ? { instructions: systemPrompt } : {}),
+      ...(tools.length > 0 ? { tools } : {}),
+      user: "BC",
+      store: true,
+      ...(currentVectorStoreId
+        ? { include: ["file_search_call.results"] }
+        : {}),
+    };
 
+    // Chain conversation if we have a previous response
+    if (previousResponseId && previousResponseId !== "undefined") {
+      requestParams.previous_response_id = previousResponseId;
+      requestParams.input = [{ role: "user", content: question }];
+      console.log(
+        "Chaining conversation with previous response:",
+        previousResponseId
+      );
+    }
+
+    if (stream) {
       const encoder = new TextEncoder();
 
       const readableStream = new ReadableStream({
         async start(controller) {
           try {
-            // Use Responses API with file_search tool and streaming
-            const stream = await openai.responses.create({
-              model: modelOverride,
-              input: question,
-              ...(systemPrompt ? { instructions: systemPrompt } : {}),
-              ...(tools.length > 0 ? { tools } : {}),
-              user: "BC", // Adding constant user parameter for better caching
-              stream: true,
-              store: true,
-              // Include search results in response
-              ...(currentVectorStoreId
-                ? {
-                    include: ["file_search_call.results"],
-                  }
-                : {}),
-            });
+            // Add stream: true to the params
+            const streamParams = { ...requestParams, stream: true };
+            const responseStream = await openai.responses.create(streamParams);
 
-            // Process the stream events
-            for await (const event of stream) {
+            let responseId = "";
+            let fullText = "";
+
+            // Properly handle the async iterator
+            for await (const event of responseStream as any) {
               let eventData: any = {
                 type: event.type,
                 data: event,
               };
 
-              // Handle specific event types with proper type checking
+              // Handle specific event types
               if (event.type === "response.output_text.delta") {
-                const deltaEvent = event as any;
-                eventData.delta = deltaEvent.delta;
+                eventData.delta = event.delta;
+                fullText += event.delta || "";
               } else if (event.type === "response.completed") {
-                const completedEvent = event as any;
+                responseId = event.response?.id || "";
                 eventData.data = {
-                  text: completedEvent.response?.output_text || "",
-                  conversationId: conversationId || `conv_${Date.now()}`,
+                  text: event.response?.output_text || fullText,
+                  conversationId: responseId, // Use actual response ID
                   vectorStoreId: currentVectorStoreId,
-                  responseId: completedEvent.response?.id,
+                  responseId: responseId,
                   status: "completed",
-                  usage: completedEvent.response?.usage || null,
+                  usage: event.response?.usage || null,
                 };
+                console.log(
+                  "Streaming file response completed:",
+                  eventData.data
+                );
               } else if (event.type === "error") {
-                const errorEvent = event as any;
-                eventData.error = errorEvent.message || "Unknown error";
+                eventData.error = event.message || "Unknown error";
+              } else if (
+                event.type === "response.file_search_call.in_progress"
+              ) {
+                eventData.data = { message: "Searching files..." };
+              } else if (event.type === "response.file_search_call.completed") {
+                eventData.data = {
+                  message: "File search completed. Generating response...",
+                };
               }
 
               controller.enqueue(
@@ -261,6 +284,7 @@ export async function POST(request: Request) {
 
             controller.close();
           } catch (error) {
+            console.error("Streaming POST error:", error);
             controller.enqueue(
               encoder.encode(
                 `data: ${JSON.stringify({
@@ -287,32 +311,26 @@ export async function POST(request: Request) {
       });
     }
 
-    console.log("Not streaming, using Responses API directly:");
+    console.log("Creating non-streaming response...");
 
-    // Non-streaming response using Responses API
-    const response = await openai.responses.create({
-      model: modelOverride,
-      input: question,
-      ...(systemPrompt ? { instructions: systemPrompt } : {}),
-      ...(tools.length > 0 ? { tools } : {}),
-      user: "BC", // Adding constant user parameter for better caching
-      store: true,
-      ...(currentVectorStoreId
-        ? {
-            include: ["file_search_call.results"],
-          }
-        : {}),
-    });
+    // Non-streaming response
+    const response = await openai.responses.create(requestParams);
 
-    const text = (response as any).output_text || "";
+    // Type assertion for the response
+    const typedResponse = response as any;
+    const text = typedResponse.output_text || "";
 
-    return NextResponse.json({
+    const result = {
       text,
-      conversationId: conversationId || `conv_${Date.now()}`,
+      conversationId: response.id, // Use actual response ID
       vectorStoreId: currentVectorStoreId,
       responseId: response.id,
       usage: response.usage,
-    });
+    };
+
+    console.log("Non-streaming response completed:", result);
+
+    return NextResponse.json(result);
   } catch (err: any) {
     console.error("POST handler error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
@@ -328,9 +346,12 @@ export async function DELETE(request: Request) {
     const vectorStoreId = searchParams.get("vector_store_id");
     const responseId = searchParams.get("response_id");
 
+    console.log("DELETE request for cleanup:", { vectorStoreId, responseId });
+
     if (vectorStoreId) {
       try {
         await openai.vectorStores.del(vectorStoreId);
+        console.log("Vector store deleted:", vectorStoreId);
       } catch (err) {
         console.warn("Failed to delete vector store:", err);
       }
@@ -339,6 +360,7 @@ export async function DELETE(request: Request) {
     if (responseId) {
       try {
         await openai.responses.del(responseId);
+        console.log("Response deleted:", responseId);
       } catch (err) {
         console.warn("Failed to delete response:", err);
       }
