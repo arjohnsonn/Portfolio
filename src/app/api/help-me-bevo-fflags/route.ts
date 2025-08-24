@@ -1,6 +1,6 @@
 const FFLAGS = {
-  "Wrapped": true
-}
+  Wrapped: false,
+};
 
 export async function GET(request: Request) {
   return new Response(JSON.stringify(FFLAGS), {
