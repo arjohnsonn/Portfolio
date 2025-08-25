@@ -1,10 +1,11 @@
 const QUOTES = [
   "OU STILL SUCKS",
-  "GOOD LUCK ON EXAMS/FINALS",
-  "does this help yalls grade",
   "what is an aggie😭",
   "Hook 'em",
   "can we pet bevo",
+  "WELCOME BACK!",
+  "new year new me prob",
+  "let's lock in fr this time",
 ];
 
 export async function GET(request: Request) {
