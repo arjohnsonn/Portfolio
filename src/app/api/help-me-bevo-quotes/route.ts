@@ -6,6 +6,7 @@ const QUOTES = [
   "WELCOME BACK!",
   "new year new me prob",
   "let's lock in fr this time",
+  "use arrow keys to control bevo",
 ];
 
 export async function GET(request: Request) {
