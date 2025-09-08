@@ -13,7 +13,7 @@ const AboutMeImageCycler = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const changeImage = (newIndex: numpnpber) => {
+  const changeImage = (newIndex: number) => {
     if (isTransitioning) return;
 
     setIsTransitioning(true);
