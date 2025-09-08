@@ -9,6 +9,7 @@ import Link from "next/link";
 import { MoveUp } from "lucide-react";
 import FadeContent from "@/components/FadeContent";
 import TrueFocus from "@/components/TrueFocus";
+import AboutMeImageCycler from "@/components/AboutMeImageCycler";
 
 export default function Home() {
   return (
@@ -40,7 +41,43 @@ export default function Home() {
         </FadeContent>
       </div>
 
-      <Title text="Experience" />
+      <Title text="About Me" />
+      <FadeContent blur={true} duration={1000} delay={500}>
+        <div className="flex flex-col md:flex-row gap-8 items-center justify-center px-8 md:px-16 py-8">
+          <AboutMeImageCycler />
+          <div className="flex flex-col max-w-2xl">
+            <p className="text-normal md:text-xl leading-relaxed text-gray-300">
+              Hey there! I'm Aiden, a sophomore at The University of Texas at
+              Austin majoring in Computer Science. I'm passionate about creating
+              impactful software and applications that enhance user experiences.
+              When I'm not coding, I'm playing football (won intramurals Fall
+              2024!), basketball, and pickleball, along with going to the gym.
+            </p>
+            <br />
+            <p className="text-normal md:text-xl leading-relaxed text-gray-300">
+              Alongside my ongoing and future career in Computer Science, I plan
+              to volunteer at the local Fire Department wherever my CS career
+              takes me. Ever since I was a kid, I've always had a strong desire
+              to join the fire service and help people in need. I've actually
+              made a game about first responding on Roblox, scroll down for more
+              info!
+            </p>
+          </div>
+        </div>
+      </FadeContent>
+
+      <Title text="Experience" top="pt-24" />
+      <Experience
+        title="BetterCampus"
+        position="Software Engineer Intern"
+        date="May 2025 - Present"
+        bullets={[
+          "Migrated a legacy codebase serving 1.5M users from raw HTML/CSS/JS to the WXT extension framework with React, TailwindCSS, Supabase, and various APIs",
+          "Built an AI-powered sidebar within Canvas LMS's file viewer, enabling contextual chat, flashcard generation, and quizzes",
+          "Enhanced the Canvas file viewer by integrating annotation tools (drawing, text, highlights) for improved user study experience",
+          "Created a customizable sidebar and an AI-powered quote widget system with backend support for user submissions, quote approving, daily scheduling",
+        ]}
+      />
       <Experience
         title="Longhorn Developers"
         position="Project Lead Developer"
