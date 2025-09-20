@@ -69,13 +69,14 @@ export default function Home() {
       <Title text="Experience" top="pt-24" />
       <Experience
         title="BetterCampus"
-        position="Software Engineer Intern"
+        position="Founding Engineer"
         date="May 2025 - Present"
         bullets={[
-          "Migrated a legacy codebase serving 1.5M users from raw HTML/CSS/JS to the WXT extension framework with React, TailwindCSS, Supabase, and various APIs",
-          "Built an AI-powered sidebar within Canvas LMS's file viewer, enabling contextual chat, flashcard generation, and quizzes",
-          "Enhanced the Canvas file viewer by integrating annotation tools (drawing, text, highlights) for improved user study experience",
-          "Created a customizable sidebar and an AI-powered quote widget system with backend support for user submissions, quote approving, daily scheduling",
+          "Led migration of BetterCampus to the WXT framework, improving maintainability and accelerating feature delivery; enhanced extension reliability for 1.6M+ global students while maintaining a rating of 5 stars with 7.5K ratings",
+          "Built Files AI to enable rich file interactions (Q&A, flashcards, quizzes, podcasting) within Canvas LMS, increasing productivity with course materials and driving adoption across school systems",
+          "Developed Copilot, an AI-powered assistant providing user academic help and automation; boosted student productivity by streamlining resource discovery, reducing time spent searching by 25%",
+          "Engineered scalable Supabase/PostgreSQL backends to 1.6M+ users for authentication, payments, database, storage, AI tools, and real-time file processing; reducing backend costs by $1,500 monthly",
+          "Collaborated in an agile team of 6 developers, coordinating sprints, reviewing PRs, and ensuring smooth feature rollouts",
         ]}
       />
       <Experience
