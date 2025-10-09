@@ -55,12 +55,13 @@ export default function Home() {
             </p>
             <br />
             <p className="text-normal md:text-xl leading-relaxed text-gray-300">
-              Alongside my ongoing and future career in Computer Science, I plan
-              to volunteer at the local Fire Department wherever my CS career
-              takes me. Ever since I was a kid, I've always had a strong desire
-              to join the fire service and help people in need. I've actually
-              made a game about first responding on Roblox, scroll down for more
-              info!
+              Alongside my career in Computer Science, I plan to volunteer/be
+              part-time at the local fire department wherever my CS career takes
+              me. Ever since I was a kid, I've always had a strong desire to
+              join the fire service and help people in need. Having both a
+              career in the CS field while serving as a firefighter is my
+              lifelong dream! I've actually made a game about first responding
+              on Roblox, scroll down for more info!
             </p>
           </div>
         </div>
@@ -143,6 +144,23 @@ export default function Home() {
           />
         </FadeContent>
         <FadeContent blur={true} duration={1000} delay={800}>
+          <Project
+            title="Austin FD Map"
+            description="Real-time Austin Fire Department incidents with unit tracking using Broadcastify and OpenAI APIs"
+            image="/Images/AustinFDMap.png"
+            github="https://github.com/arjohnsonn/austin-incident-map"
+            redirect="https://austinfd.vercel.app"
+            skills={[
+              "TypeScript",
+              "HTML5",
+              "CSS3",
+              "TailwindCSS",
+              "React",
+              "Supabase",
+            ]}
+          />
+        </FadeContent>
+        <FadeContent blur={true} duration={1000} delay={600}>
           <Project
             title="Ortex Alerts"
             description="A Chrome extension that enhances Ortex's options flow to alert users when mass volume is purchased from market makers, hedge funds, and other big-money players."
