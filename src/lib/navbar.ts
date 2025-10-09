@@ -6,6 +6,7 @@ import {
   Briefcase,
   Hammer,
   Instagram,
+  User,
 } from "lucide-react";
 
 export interface Icon {
@@ -18,6 +19,11 @@ export const GENERAL: Record<string, Icon> = {
   Home: {
     Image: HomeIcon,
     href: "/",
+  },
+  "About Me": {
+    Image: User,
+    href: "#about me",
+    hoverColor: "group-hover:text-emerald-400",
   },
   Experience: {
     Image: Briefcase,

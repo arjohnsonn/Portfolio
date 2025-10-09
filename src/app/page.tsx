@@ -146,7 +146,7 @@ export default function Home() {
         <FadeContent blur={true} duration={1000} delay={800}>
           <Project
             title="Austin FD Map"
-            description="Real-time Austin Fire Department incidents with unit tracking using Broadcastify and OpenAI APIs"
+            description="Real-time Austin Fire Department incidents with unit tracking using Broadcastify and OpenAI APIs. I always wondered where different fire trucks were going around the city, so I made this small passion project to see calls and the assigned units!"
             image="/Images/AustinFDMap.png"
             github="https://github.com/arjohnsonn/austin-incident-map"
             redirect="https://austinfd.vercel.app"
@@ -255,7 +255,7 @@ export default function Home() {
             <br />
             <Link
               href="/"
-              onClick={(e) => {
+              onClick={() => {
                 handleScroll(50);
               }}
             >
